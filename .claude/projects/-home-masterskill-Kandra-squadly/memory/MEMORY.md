@@ -1,0 +1,2 @@
+- [feedback_small_files.md](feedback_small_files.md) — Keep files small, break large components into sub-components
+- [feedback_no_coauthor.md](feedback_no_coauthor.md) — No Co-Authored-By in commit messages
