@@ -46,6 +46,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/teams/{team}', [TeamController::class, 'destroy'])->name('teams.destroy');
 
     Route::get('/members', [MemberController::class, 'index'])->name('members.index');
+    Route::get('/members/export/csv', [MemberController::class, 'exportCsv'])->name('members.export.csv');
+    Route::get('/members/export/pdf', [MemberController::class, 'exportPdf'])->name('members.export.pdf');
     Route::post('/members', [MemberController::class, 'store'])->name('members.store');
     Route::get('/members/{member}', [MemberController::class, 'show'])->name('members.show');
     Route::put('/members/{member}', [MemberController::class, 'update'])->name('members.update');

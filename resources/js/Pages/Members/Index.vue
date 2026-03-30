@@ -123,6 +123,26 @@ const grouped = computed(() => {
                             Par rôle
                         </button>
                     </div>
+                    <!-- Export buttons -->
+                    <div class="flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-0.5">
+                        <a
+                            :href="route('members.export.csv')"
+                            class="rounded-md px-2.5 py-1.5 text-xs font-medium text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+                            title="Exporter en CSV"
+                        >
+                            <svg class="inline h-3.5 w-3.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                            CSV
+                        </a>
+                        <a
+                            :href="route('members.export.pdf')"
+                            class="rounded-md px-2.5 py-1.5 text-xs font-medium text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+                            title="Exporter en PDF"
+                        >
+                            <svg class="inline h-3.5 w-3.5 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                            PDF
+                        </a>
+                    </div>
+
                     <button class="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700" @click="showAdd = true">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                         Ajouter un membre

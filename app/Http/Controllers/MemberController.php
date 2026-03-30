@@ -12,10 +12,12 @@ use App\Models\MemberProfile;
 use App\Models\MemberSectionProfile;
 use App\Models\TeamMember;
 use App\Notifications\MemberInvited;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MemberController extends Controller
 {
@@ -57,6 +59,90 @@ class MemberController extends Controller
             'club' => $club->only('id', 'name'),
             'sections' => $sections,
         ]);
+    }
+
+    public function exportCsv(Request $request): StreamedResponse
+    {
+        $members = $this->getMembersForExport($request);
+
+        return response()->streamDownload(function () use ($members) {
+            $handle = fopen('php://output', 'w');
+            fwrite($handle, "\xEF\xBB\xBF"); // UTF-8 BOM
+            fputcsv($handle, ['Nom', 'Prénom', 'Email', 'Téléphone', 'Date de naissance', 'Rôle', 'Équipes'], ';');
+
+            foreach ($members as $m) {
+                fputcsv($handle, [
+                    $m['last_name'],
+                    $m['first_name'],
+                    $m['email'],
+                    $m['phone'] ?? '',
+                    $m['birth_date'] ?? '',
+                    $m['role_label'],
+                    $m['teams_label'],
+                ], ';');
+            }
+
+            fclose($handle);
+        }, 'membres-' . date('Y-m-d') . '.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $club = $request->user()->resolveClub();
+        $members = $this->getMembersForExport($request);
+
+        $pdf = Pdf::loadView('exports.members', [
+            'members' => $members,
+            'clubName' => $club->name,
+            'date' => now()->format('d/m/Y'),
+            'total' => count($members),
+        ]);
+
+        $pdf->setPaper('a4', 'landscape');
+
+        return $pdf->download('membres-' . date('Y-m-d') . '.pdf');
+    }
+
+    private function getMembersForExport(Request $request): array
+    {
+        $club = $request->user()->resolveClub();
+        $teams = $club->teams()->pluck('teams.name', 'teams.id');
+        $clubTeamIds = $teams->keys();
+
+        $teamMemberships = TeamMember::whereIn('team_id', $clubTeamIds)
+            ->get()
+            ->groupBy('user_id');
+
+        $roleLabels = [
+            Role::Admin->value => 'Président',
+            Role::Coach->value => 'Coach',
+            Role::Membre->value => 'Membre',
+        ];
+
+        return $club->memberProfiles()
+            ->with('user:id,email')
+            ->get()
+            ->map(function ($m) use ($teamMemberships, $teams, $roleLabels) {
+                $role = $m->user->getRoleNames()->first() ?? Role::Membre->value;
+                $memberTeamIds = $teamMemberships->get($m->user_id)?->pluck('team_id') ?? collect();
+                $teamNames = $memberTeamIds->map(fn ($id) => $teams->get($id))->filter()->join(', ');
+
+                return [
+                    'first_name' => $m->first_name,
+                    'last_name' => $m->last_name,
+                    'email' => $m->user->email,
+                    'phone' => $m->phone,
+                    'birth_date' => $m->birth_date?->format('d/m/Y'),
+                    'role' => $role,
+                    'role_label' => $roleLabels[$role] ?? $role,
+                    'teams_label' => $teamNames ?: '—',
+                ];
+            })
+            ->sortBy('last_name')
+            ->values()
+            ->toArray();
     }
 
     public function show(Request $request, MemberProfile $member): Response
