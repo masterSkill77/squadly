@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\AttendanceStatus;
 use App\Models\Attendance;
+use App\Models\Convocation;
 use App\Models\Event;
 use App\Models\MemberProfile;
 use Illuminate\Http\RedirectResponse;
@@ -62,7 +63,11 @@ class AttendanceController extends Controller
 
         $event->load('team:id,name,section_id', 'team.section:id,club_id');
 
-        $teamPlayers = $event->team->players()->get();
+        // Only show convoked players, fallback to all team players if no convocations
+        $convokedUserIds = Convocation::where('event_id', $event->id)->pluck('user_id');
+        $teamPlayers = $convokedUserIds->isNotEmpty()
+            ? $event->team->players()->whereIn('users.id', $convokedUserIds)->get()
+            : $event->team->players()->get();
         $playerIds = $teamPlayers->pluck('id');
 
         $profiles = MemberProfile::where('club_id', $club->id)
