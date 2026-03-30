@@ -103,6 +103,12 @@ class CoachTeamController extends Controller
         $team->load('section:id,club_id');
         $clubId = $team->section->club_id;
 
+        // Check if player already in this team
+        $existingUser = User::where('email', $request->email)->first();
+        if ($existingUser && $team->members()->where('users.id', $existingUser->id)->exists()) {
+            return back()->withErrors(['email' => 'Ce joueur fait déjà partie de cette équipe.']);
+        }
+
         $temporaryPassword = str()->random(10);
         $player = User::firstOrCreate(
             ['email' => $request->email],
