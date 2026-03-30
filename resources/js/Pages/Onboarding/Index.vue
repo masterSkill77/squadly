@@ -25,6 +25,19 @@ const canNext = computed(() => {
     return true;
 });
 
+const canSkip = computed(() => step.value === 1 || step.value === 2);
+
+function skip() {
+    if (step.value === 1) {
+        form.sports = [];
+        form.teams = [{ name: '', sport: '', age_category: '' }];
+    }
+    if (step.value === 2) {
+        form.teams = [];
+    }
+    step.value++;
+}
+
 function next() {
     if (step.value === 1 && form.teams[0] && !form.teams[0].sport) {
         form.teams[0].sport = form.sports[0];
@@ -91,15 +104,24 @@ function submit() {
                     </button>
                     <span v-else />
 
-                    <button
-                        v-if="step < steps.length - 1"
-                        type="button"
-                        :disabled="!canNext"
-                        class="rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-40"
-                        @click="next"
-                    >
-                        Suivant
-                    </button>
+                    <div v-if="step < steps.length - 1" class="flex items-center gap-3">
+                        <button
+                            v-if="canSkip"
+                            type="button"
+                            class="text-sm text-gray-400 transition hover:text-gray-600"
+                            @click="skip"
+                        >
+                            Passer cette étape
+                        </button>
+                        <button
+                            type="button"
+                            :disabled="!canNext"
+                            class="rounded-lg bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-40"
+                            @click="next"
+                        >
+                            Suivant
+                        </button>
+                    </div>
                     <button
                         v-else
                         type="button"

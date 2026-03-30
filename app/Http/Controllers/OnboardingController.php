@@ -29,9 +29,9 @@ class OnboardingController extends Controller
         $request->validate([
             'club_name' => 'required|string|max:255',
             'city' => 'nullable|string|max:255',
-            'sports' => 'required|array|min:1',
+            'sports' => 'nullable|array',
             'sports.*' => "string|in:{$validSports}",
-            'teams' => 'required|array|min:1',
+            'teams' => 'nullable|array',
             'teams.*.name' => 'required|string|max:255',
             'teams.*.sport' => "required|string|in:{$validSports}",
             'teams.*.age_category' => 'nullable|string|max:100',
@@ -46,7 +46,7 @@ class OnboardingController extends Controller
         ]);
 
         $sectionMap = [];
-        foreach ($request->sports as $sport) {
+        foreach ($request->sports ?? [] as $sport) {
             $section = $club->sections()->create([
                 'sport_type' => $sport,
                 'sport_template' => SportTemplateService::get($sport),
@@ -54,7 +54,7 @@ class OnboardingController extends Controller
             $sectionMap[$sport] = $section->id;
         }
 
-        foreach ($request->teams as $team) {
+        foreach ($request->teams ?? [] as $team) {
             if ($sectionId = $sectionMap[$team['sport']] ?? null) {
                 \App\Models\Team::create([
                     'section_id' => $sectionId,

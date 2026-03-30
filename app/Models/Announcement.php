@@ -8,9 +8,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Announcement extends Model
+class Announcement extends Model implements HasMedia
 {
+    use InteractsWithMedia;
     protected $fillable = ['user_id', 'club_id', 'section_id', 'title', 'content', 'target_type'];
 
     protected $casts = [
@@ -35,6 +38,11 @@ class Announcement extends Model
     public function teams(): BelongsToMany
     {
         return $this->belongsToMany(Team::class, 'announcement_team');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('attachments');
     }
 
     public function getTargetLabelAttribute(): string

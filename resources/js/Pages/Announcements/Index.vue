@@ -24,6 +24,12 @@ function formatDate(iso) {
     return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
+function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' o';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' Ko';
+    return (bytes / 1048576).toFixed(1) + ' Mo';
+}
+
 function deleteAnnouncement(id) {
     if (confirm('Supprimer cette annonce ?')) {
         router.delete(route('announcements.destroy', id));
@@ -71,6 +77,37 @@ function deleteAnnouncement(id) {
                             </div>
                             <h3 class="mt-2 text-sm font-semibold text-gray-900">{{ a.title }}</h3>
                             <p class="mt-1 whitespace-pre-line text-sm text-gray-600">{{ a.content }}</p>
+
+                            <!-- Attachments -->
+                            <div v-if="a.attachments?.length" class="mt-3">
+                                <!-- Image gallery -->
+                                <div v-if="a.attachments.some(att => att.is_image)" class="flex flex-wrap gap-2">
+                                    <a
+                                        v-for="img in a.attachments.filter(att => att.is_image)"
+                                        :key="img.id"
+                                        :href="img.url"
+                                        target="_blank"
+                                        class="group overflow-hidden rounded-lg border border-gray-100"
+                                    >
+                                        <img :src="img.url" :alt="img.name" class="h-32 w-auto object-cover transition group-hover:scale-105" />
+                                    </a>
+                                </div>
+                                <!-- File list -->
+                                <div v-if="a.attachments.some(att => !att.is_image)" class="mt-2 flex flex-wrap gap-2">
+                                    <a
+                                        v-for="file in a.attachments.filter(att => !att.is_image)"
+                                        :key="file.id"
+                                        :href="file.url"
+                                        target="_blank"
+                                        class="inline-flex items-center gap-1.5 rounded-lg border border-gray-100 bg-gray-50 px-3 py-1.5 text-xs text-gray-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+                                    >
+                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m18.375 12.739-7.693 7.693a4.5 4.5 0 0 1-6.364-6.364l10.94-10.94A3 3 0 1 1 19.5 7.372L8.552 18.32m.009-.01-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 0 0 2.112 2.13" /></svg>
+                                        {{ file.name }}
+                                        <span class="text-gray-400">({{ formatSize(file.size) }})</span>
+                                    </a>
+                                </div>
+                            </div>
+
                             <p class="mt-3 text-xs text-gray-400">Par {{ a.author_name }}</p>
                         </div>
                         <button
