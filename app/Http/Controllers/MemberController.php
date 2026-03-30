@@ -261,6 +261,12 @@ class MemberController extends Controller
             'sport_profiles.*.sport_profile' => 'required|array',
         ]);
 
+        // Check if member already exists in this club
+        $existingUser = \App\Models\User::where('email', $request->email)->first();
+        if ($existingUser && MemberProfile::where('user_id', $existingUser->id)->where('club_id', $club->id)->exists()) {
+            return back()->withErrors(['email' => 'Ce membre fait déjà partie du club.']);
+        }
+
         $temporaryPassword = str()->random(10);
         $isNewUser = false;
 
