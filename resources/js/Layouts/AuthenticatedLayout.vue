@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import Sidebar from '@/Components/Layout/Sidebar.vue';
 import TopBar from '@/Components/Layout/TopBar.vue';
+import Toast from '@/Components/Layout/Toast.vue';
 
 const collapsed = ref(false);
 const mobileOpen = ref(false);
@@ -42,5 +43,7 @@ const mobileOpen = ref(false);
                 <slot />
             </main>
         </div>
+
+        <Toast />
     </div>
 </template>

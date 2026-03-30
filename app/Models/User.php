@@ -7,6 +7,9 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -18,16 +21,45 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function club(): HasOne
+    {
+        return $this->hasOne(Club::class, 'owner_id');
+    }
+
+    public function hasClub(): bool
+    {
+        return $this->club()->exists();
+    }
+
+    /**
+     * Resolve the club this user belongs to, regardless of role.
+     * Admin → owns the club. Coach/Membre → via their MemberProfile.
+     */
+    public function resolveClub(): ?Club
+    {
+        return $this->club ?? $this->memberProfiles()->first()?->club;
+    }
+
+    public function memberProfiles(): HasMany
+    {
+        return $this->hasMany(MemberProfile::class);
+    }
+
+    public function sectionProfiles(): HasMany
+    {
+        return $this->hasMany(MemberSectionProfile::class);
+    }
+
+    public function teams(): BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'team_members')->withTimestamps();
     }
 }

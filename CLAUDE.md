@@ -1,4 +1,4 @@
-e# Squadly
+# Squadly
 > "Manage less. Play more."
 
 Application web de gestion de clubs sportifs multi-sports (football, basket, natation, handball…).
@@ -19,7 +19,6 @@ Cible : admins de club, coachs, joueurs/membres.
 | Rôles & permissions | Spatie Laravel Permission |
 | Stockage fichiers | Spatie Laravel Media Library |
 | Notifications email | Laravel Notifications + Mailpit (dev) |
-| Notifications push | OneSignal (V2) |
 
 ## Packages Laravel installés
 
@@ -40,48 +39,35 @@ Cible : admins de club, coachs, joueurs/membres.
 - Composants Vue : Composition API (`<script setup>`)
 - Fichiers courts : découper en sous-composants, éviter les fichiers monolithiques
 - Pas d'API REST séparée — tout passe par Inertia
-
----
-
-## Structure du club (hiérarchie)
-
-```
-Club
- └── Section (un sport : foot, basket, natation…)
-      └── Équipe (seniors, U17, féminines…)
-           └── Membre (joueur ou staff)
-```
-
-Un membre a un **profil de base commun** + un **profil spécifique par section** (stocké en JSON).
-Un membre peut appartenir à plusieurs sections du même club.
+- Toasts de confirmation sur chaque action (flash messages via Inertia shared data)
+- Pas de Co-Authored-By dans les commits
 
 ---
 
 ## Rôles (via Spatie Permission)
 
-| Rôle | Périmètre |
-|------|-----------|
-| `admin_club` | Club entier |
-| `coach` | Son équipe uniquement |
-| `membre` | Son profil + son planning |
+| Rôle | Label UI | Périmètre | Affichage fiche membre |
+|------|----------|-----------|----------------------|
+| `admin_club` | Président | Club entier | N/A (c'est le propriétaire) |
+| `coach` | Coach | Ses équipes encadrées | Pas de profil sportif, carte "Équipes encadrées" (bleu) |
+| `membre` | Membre | Son profil + son planning | Profils sportifs dynamiques + carte "Équipes" (vert) |
 
-Permissions additionnelles (flags JSON sur le modèle user) :
-- `can_manage_finances`
-- `can_manage_documents`
-- `can_validate_transfers` (V2)
+Permissions Spatie : `manage_club`, `manage_members`, `manage_teams`, `manage_sections`, `manage_events`, `manage_convocations`, `manage_attendance`, `manage_documents`, `manage_finances`, `view_dashboard`, `respond_convocation`, `view_own_profile`
 
 ---
 
-## Modèles principaux
+## Modèles principaux (implémentés)
 
-- `Club` — nom, logo, ville
+- `Club` — owner_id, name, slug, city, logo_path
 - `Section` — club_id, sport_type, sport_template (JSON)
-- `Team` — section_id, nom, catégorie d'âge, saison
-- `User` — email, password (via Breeze)
-- `MemberProfile` — user_id, club_id, prénom, nom, date de naissance, photo
-- `MemberSectionProfile` — user_id, section_id, sport_profile (JSON)
-- `TeamMember` — pivot user ↔ team
-- `UserRole` — user_id, role, scope_type, scope_id, extra_perms (JSON)
+- `Team` — section_id, name, age_category, season
+- `User` — email, password, has_completed_onboarding (via Breeze + HasRoles)
+- `MemberProfile` — user_id, club_id, first_name, last_name, birth_date, phone, photo (Spatie Media)
+- `MemberSectionProfile` — user_id, section_id, sport_profile (JSON dynamique)
+- `TeamMember` — pivot user_id ↔ team_id
+
+## Modèles à venir
+
 - `Event` — team_id, type (training/match/other), titre, lieu, dates
 - `Convocation` — event_id, user_id, status (pending/confirmed/declined)
 - `Attendance` — event_id, user_id, status (present/absent/justified)
@@ -89,62 +75,32 @@ Permissions additionnelles (flags JSON sur le modèle user) :
 
 ---
 
-## Modules V1 (ordre de développement)
+## Modules V1 (état d'avancement)
 
-1. **Auth + onboarding guidé** — Breeze, création de club en 4 étapes
-2. **Membres & équipes** — CRUD complet, profils sport, multi-sections
-3. **Planning & convocations** — événements, convocations, réponses joueurs
-4. **Présences** — feuille d'appel, taux de présence, historique
-5. **Dashboard par rôle** — vues différentes admin / coach / membre
-6. **Communication & documents** — annonces, upload fichiers, alertes docs
-
----
-
-## Onboarding guidé (création de club)
-
-Wizard en 4 étapes après inscription :
-1. Infos du club (nom, logo, ville)
-2. Sports pratiqués → crée les sections avec template associé
-3. Créer les équipes (nom, catégorie d'âge, saison)
-4. Inviter les membres (email + rôle assigné)
+1. ✅ **Auth + onboarding guidé** — Breeze, création de club en 4 étapes, tour guidé
+2. ✅ **Organisation** — CRUD Club, Sections (ajout sport), Teams (ajout/edit/delete)
+3. ✅ **Membres** — CRUD complet, rôle coach/membre, profils sport dynamiques, assignation équipes
+4. ⬜ **Planning & convocations** — événements, convocations, réponses joueurs
+5. ⬜ **Présences** — feuille d'appel, taux de présence, historique
+6. ✅ **Dashboard par rôle** — vues admin / coach / membre, sidebar verticale collapsible
+7. ⬜ **Communication & documents** — annonces, upload fichiers, alertes docs
 
 ---
 
-## Templates par sport (exemples)
+## Structure des pages
 
-Stockés en JSON dans `sections.sport_template`. Champs affichés dynamiquement dans les formulaires.
+- `/` — Landing page (Welcome.vue)
+- `/login` — Connexion (split layout + image communauté)
+- `/register` — Inscription → redirige vers `/onboarding`
+- `/onboarding` — Wizard 4 étapes (club → sports → équipes → récap)
+- `/dashboard` — Tableau de bord par rôle (admin/coach/membre)
+- `/club` — Gestion du club (sections, équipes, ajout sport)
+- `/members` — Liste des membres avec recherche
+- `/members/{id}` — Fiche membre (coach: équipes encadrées / membre: profils sportifs)
 
-```json
-{
-  "football": {
-    "fields": [
-      { "key": "position", "label": "Poste", "type": "select", "options": ["Gardien", "Défenseur", "Milieu", "Attaquant"] },
-      { "key": "dominant_foot", "label": "Pied dominant", "type": "select", "options": ["Gauche", "Droit", "Les deux"] },
-      { "key": "jersey_number", "label": "Numéro de maillot", "type": "number" },
-      { "key": "shoe_size", "label": "Pointure", "type": "number" }
-    ]
-  },
-  "basketball": {
-    "fields": [
-      { "key": "position", "label": "Poste", "type": "select", "options": ["Meneur", "Arrière", "Ailier", "Ailier fort", "Pivot"] },
-      { "key": "jersey_number", "label": "Numéro de maillot", "type": "number" },
-      { "key": "dominant_hand", "label": "Main dominante", "type": "select", "options": ["Gauche", "Droite"] }
-    ]
-  }
-}
-```
+## Services
 
----
-
-## Hors scope V1 → V2
-
-- Cotisations et paiements en ligne
-- Statistiques et performances joueurs
-- Transferts entre clubs
-- Budget du club
-- Dashboard super-admin (multi-clubs / SaaS)
-- App mobile native
-- Chat individuel
+- `SportTemplateService` — templates sport centralisés (football, basketball, handball, natation, rugby, volleyball)
 
 ---
 

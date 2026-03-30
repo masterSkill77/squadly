@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Role as RoleEnum;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -31,7 +32,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        Role::firstOrCreate(['name' => 'admin_club'])->syncPermissions([
+        Role::firstOrCreate(['name' => RoleEnum::Admin->value])->syncPermissions([
             'manage_club',
             'manage_members',
             'manage_teams',
@@ -44,14 +45,14 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_dashboard',
         ]);
 
-        Role::firstOrCreate(['name' => 'coach'])->syncPermissions([
+        Role::firstOrCreate(['name' => RoleEnum::Coach->value])->syncPermissions([
             'manage_events',
             'manage_convocations',
             'manage_attendance',
             'view_dashboard',
         ]);
 
-        Role::firstOrCreate(['name' => 'membre'])->syncPermissions([
+        Role::firstOrCreate(['name' => RoleEnum::Membre->value])->syncPermissions([
             'respond_convocation',
             'view_own_profile',
             'view_dashboard',
