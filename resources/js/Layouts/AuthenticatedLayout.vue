@@ -1,8 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import Sidebar from '@/Components/Layout/Sidebar.vue';
 import TopBar from '@/Components/Layout/TopBar.vue';
 import Toast from '@/Components/Layout/Toast.vue';
+import GuidedTour from '@/Components/Dashboard/GuidedTour.vue';
+import WelcomeModal from '@/Components/Dashboard/WelcomeModal.vue';
+import { Role } from '@/Utils/roles';
 
 const STORAGE_KEY = 'squadly_sidebar_collapsed';
 const collapsed = ref(localStorage.getItem(STORAGE_KEY) === 'true');
@@ -12,6 +16,23 @@ function toggleSidebar() {
     collapsed.value = !collapsed.value;
     localStorage.setItem(STORAGE_KEY, collapsed.value);
 }
+
+const page = usePage();
+const role = page.props.auth.role;
+const hasCompletedOnboarding = page.props.auth.user?.has_completed_onboarding;
+const showTour = ref(!hasCompletedOnboarding && role === Role.Admin);
+const showWelcome = ref(!hasCompletedOnboarding && role !== Role.Admin);
+
+function onShowHelp() {
+    if (role === Role.Admin) {
+        showTour.value = true;
+    } else {
+        showWelcome.value = true;
+    }
+}
+
+onMounted(() => window.addEventListener('squadly:show-help', onShowHelp));
+onBeforeUnmount(() => window.removeEventListener('squadly:show-help', onShowHelp));
 </script>
 
 <template>
@@ -51,5 +72,14 @@ function toggleSidebar() {
         </div>
 
         <Toast />
+
+        <!-- Help modals -->
+        <GuidedTour v-if="showTour" @close="showTour = false" />
+        <WelcomeModal
+            :show="showWelcome"
+            :role="role"
+            :club-name="page.props.auth.club?.name || 'votre club'"
+            @close="showWelcome = false"
+        />
     </div>
 </template>

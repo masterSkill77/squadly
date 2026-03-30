@@ -12,28 +12,43 @@ function complete() {
 const steps = [
     {
         title: 'Bienvenue sur Squadly !',
-        description: 'Vous venez de créer votre espace. Suivez ces étapes pour configurer votre club.',
+        description: 'Vous venez de créer votre espace. Suivez ces étapes pour découvrir tout ce que vous pouvez faire avec Squadly.',
         icon: '👋',
     },
     {
-        title: 'Créez votre club',
-        description: 'Ajoutez le nom, le logo et la ville de votre club pour commencer.',
+        title: 'Configurez votre club',
+        description: 'Ajoutez le logo, le nom et la ville de votre club. Vous pouvez modifier ces informations à tout moment depuis la page Mon club.',
         icon: '🏟️',
     },
     {
         title: 'Ajoutez vos sports',
-        description: 'Football, basket, natation… Créez une section par sport pratiqué.',
+        description: 'Football, basket, natation, handball… Créez une section par sport pratiqué. Chaque section a ses propres champs de profil sportif.',
         icon: '⚽',
     },
     {
         title: 'Formez vos équipes',
-        description: 'Seniors, U17, féminines — organisez vos groupes comme vous le souhaitez.',
+        description: 'Seniors, U17, féminines — créez autant d\'équipes que nécessaire dans chaque section. Elles servent à organiser les événements et convocations.',
         icon: '👥',
     },
     {
         title: 'Invitez vos membres',
-        description: 'Envoyez des invitations par email. Chacun recevra son accès avec le bon rôle.',
+        description: 'Ajoutez des coachs et des joueurs par email. Chacun recevra un mail d\'invitation avec ses identifiants et un accès adapté à son rôle.',
         icon: '📨',
+    },
+    {
+        title: 'Planifiez vos événements',
+        description: 'Créez des entraînements et des matchs pour une équipe, une section entière ou tout le club. Envoyez les convocations en un clic.',
+        icon: '📅',
+    },
+    {
+        title: 'Suivez les présences',
+        description: 'Faites l\'appel depuis l\'application et consultez les taux de présence par joueur. Un outil précieux pour le suivi de vos effectifs.',
+        icon: '✅',
+    },
+    {
+        title: 'Communiquez efficacement',
+        description: 'Publiez des annonces ciblées avec des pièces jointes. Gérez les documents de vos membres (certificats, licences) et recevez des alertes d\'expiration.',
+        icon: '📢',
     },
 ];
 
