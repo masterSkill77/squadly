@@ -5,7 +5,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import EventList from '@/Components/Events/EventList.vue';
 import EventModal from '@/Components/Events/EventModal.vue';
 
-const props = defineProps({ events: Array, teams: Array, eventTypes: Array });
+const props = defineProps({ events: Array, teams: Array, sections: Array, eventTypes: Array });
 
 const showModal = ref(false);
 const editingEvent = ref(null);
@@ -34,6 +34,7 @@ function openEdit(event) {
         <EventModal
             :show="showModal"
             :teams="teams"
+            :sections="sections"
             :event-types="eventTypes"
             :event="editingEvent"
             @close="showModal = false"

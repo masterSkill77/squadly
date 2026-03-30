@@ -7,12 +7,16 @@ import { useForm, router } from '@inertiajs/vue3';
 const props = defineProps({
     show: Boolean,
     teams: Array,
+    sections: { type: Array, default: () => [] },
     eventTypes: Array,
     event: { type: Object, default: null },
 });
 const emit = defineEmits(['close']);
 
 const isEditing = computed(() => !!props.event);
+const hasSections = computed(() => props.sections?.length > 0);
+
+const allTeamIds = computed(() => props.teams.map(t => t.id));
 
 const form = useForm({
     team_ids: [],
@@ -53,11 +57,31 @@ function toggleTeam(id) {
 }
 
 function selectAllTeams() {
-    if (form.team_ids.length === props.teams.length) {
+    if (form.team_ids.length === allTeamIds.value.length) {
         form.team_ids = [];
     } else {
-        form.team_ids = props.teams.map(t => t.id);
+        form.team_ids = [...allTeamIds.value];
     }
+}
+
+function selectSection(section) {
+    const sectionTeamIds = section.teams.map(t => t.id);
+    const allSelected = sectionTeamIds.every(id => form.team_ids.includes(id));
+
+    if (allSelected) {
+        form.team_ids = form.team_ids.filter(id => !sectionTeamIds.includes(id));
+    } else {
+        const toAdd = sectionTeamIds.filter(id => !form.team_ids.includes(id));
+        form.team_ids.push(...toAdd);
+    }
+}
+
+function isSectionSelected(section) {
+    return section.teams.length > 0 && section.teams.every(t => form.team_ids.includes(t.id));
+}
+
+function isSectionPartial(section) {
+    return section.teams.some(t => form.team_ids.includes(t.id)) && !isSectionSelected(section);
 }
 
 function submit() {
@@ -106,15 +130,61 @@ function deleteEvent() {
             </h3>
 
             <form class="mt-5 space-y-4" @submit.prevent="submit">
-                <!-- Create: multi-select teams -->
+                <!-- Create: scope selection -->
                 <div v-if="!isEditing">
-                    <div class="flex items-center justify-between">
-                        <label class="block text-sm font-medium text-gray-700">Équipes</label>
-                        <button type="button" class="text-xs text-emerald-600 hover:text-emerald-700" @click="selectAllTeams">
-                            {{ form.team_ids.length === teams.length ? 'Tout désélectionner' : 'Tout sélectionner' }}
+                    <label class="block text-sm font-medium text-gray-700">Destinataires</label>
+
+                    <!-- Quick scope buttons -->
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            class="rounded-full border-2 px-3.5 py-1.5 text-xs font-medium transition"
+                            :class="form.team_ids.length === allTeamIds.length && allTeamIds.length > 0
+                                ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                                : 'border-gray-200 text-gray-500 hover:border-gray-300'"
+                            @click="selectAllTeams"
+                        >
+                            Tout le club
+                        </button>
+                        <button
+                            v-for="s in sections"
+                            :key="s.id"
+                            type="button"
+                            class="rounded-full border-2 px-3.5 py-1.5 text-xs font-medium transition"
+                            :class="isSectionSelected(s)
+                                ? 'border-purple-500 bg-purple-50 text-purple-700'
+                                : isSectionPartial(s)
+                                    ? 'border-purple-300 bg-purple-50/50 text-purple-500'
+                                    : 'border-gray-200 text-gray-500 hover:border-gray-300'"
+                            @click="selectSection(s)"
+                        >
+                            {{ s.sport_type }}
                         </button>
                     </div>
-                    <div class="mt-2 flex flex-wrap gap-2">
+
+                    <!-- Teams grouped by section -->
+                    <div v-if="hasSections" class="mt-3 space-y-3">
+                        <div v-for="s in sections" :key="s.id">
+                            <p class="mb-1.5 text-xs font-medium text-gray-400 uppercase">{{ s.sport_type }}</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button
+                                    v-for="t in s.teams"
+                                    :key="t.id"
+                                    type="button"
+                                    class="rounded-full border-2 px-3 py-1 text-xs font-medium transition"
+                                    :class="form.team_ids.includes(t.id)
+                                        ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                                        : 'border-gray-200 text-gray-500 hover:border-gray-300'"
+                                    @click="toggleTeam(t.id)"
+                                >
+                                    {{ t.name }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fallback: flat list if no sections -->
+                    <div v-else class="mt-2 flex flex-wrap gap-2">
                         <button
                             v-for="t in teams"
                             :key="t.id"
@@ -128,6 +198,7 @@ function deleteEvent() {
                             {{ t.name }}
                         </button>
                     </div>
+
                     <InputError class="mt-1" :message="form.errors.team_ids" />
                 </div>
 

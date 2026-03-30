@@ -35,11 +35,22 @@ class EventController extends Controller
                 'sport_type' => $e->team->section->sport_type,
             ]);
 
+        $sections = $club->sections()
+            ->with('teams:id,section_id,name')
+            ->select('id', 'sport_type')
+            ->get()
+            ->map(fn ($s) => [
+                'id' => $s->id,
+                'sport_type' => $s->sport_type,
+                'teams' => $s->teams->map(fn ($t) => ['id' => $t->id, 'name' => $t->name]),
+            ]);
+
         $teams = $club->teams()->select('teams.id', 'teams.name')->get();
 
         return Inertia::render('Events/Index', [
             'events' => $events,
             'teams' => $teams,
+            'sections' => $sections,
             'eventTypes' => collect(EventType::cases())->map(fn ($t) => [
                 'value' => $t->value,
                 'label' => $t->label(),

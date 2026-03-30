@@ -1,5 +1,8 @@
 {
     "$schema": "https://www.schemastore.org/package.json",
+    "name": "squadly",
+    "version": "1.0.0",
+    "description": "Squadly — Application web de gestion de clubs sportifs multi-sports. Manage less. Play more.",
     "private": true,
     "type": "module",
     "scripts": {

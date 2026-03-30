@@ -1,10 +1,10 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "masterskill77/squadly",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
-    "license": "MIT",
+    "description": "Squadly — Application web de gestion de clubs sportifs multi-sports. Manage less. Play more.",
+    "keywords": ["squadly", "club", "sport", "gestion", "laravel", "inertia", "vue"],
+    "license": "proprietary",
     "require": {
         "php": "^8.3",
         "inertiajs/inertia-laravel": "^2.0",
