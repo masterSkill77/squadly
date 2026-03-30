@@ -6,6 +6,7 @@ import CoachDashboard from '@/Components/Dashboard/CoachDashboard.vue';
 import MembreDashboard from '@/Components/Dashboard/MembreDashboard.vue';
 import GuidedTour from '@/Components/Dashboard/GuidedTour.vue';
 import { Head } from '@inertiajs/vue3';
+import { Role, roleLabels } from '@/Utils/roles';
 
 const props = defineProps({
     role: String,
@@ -13,13 +14,7 @@ const props = defineProps({
     hasCompletedOnboarding: Boolean,
 });
 
-const roleLabels = {
-    admin_club: 'Président',
-    coach: 'Coach',
-    membre: 'Membre',
-};
-
-const showTour = ref(!props.hasCompletedOnboarding && props.role === 'admin_club');
+const showTour = ref(!props.hasCompletedOnboarding && props.role === Role.Admin);
 </script>
 
 <template>
@@ -32,8 +27,8 @@ const showTour = ref(!props.hasCompletedOnboarding && props.role === 'admin_club
             </h2>
         </template>
 
-        <AdminDashboard v-if="role === 'admin_club'" />
-        <CoachDashboard v-else-if="role === 'coach'" />
+        <AdminDashboard v-if="role === Role.Admin" />
+        <CoachDashboard v-else-if="role === Role.Coach" />
         <MembreDashboard v-else />
     </AuthenticatedLayout>
 
