@@ -34,7 +34,7 @@ const teamsBySport = computed(() => {
             <section v-for="sport in teamsBySport" :key="sport.sport_type">
                 <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">{{ sport.label }}</p>
 
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="grid gap-3 grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                     <Link
                         v-for="team in sport.teams"
                         :key="team.id"
