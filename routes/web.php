@@ -78,7 +78,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/mes-convocations', [MemberConvocationController::class, 'index'])->name('membre.convocations');
     Route::put('/mes-convocations/{convocation}', [MemberConvocationController::class, 'respond'])->name('membre.convocations.respond');
 
-    Route::get('/coach/tactique', fn () => \Inertia\Inertia::render('Coach/Tactics'))->name('coach.tactics');
+    // Route::get('/coach/tactique', fn () => \Inertia\Inertia::render('Coach/Tactics'))->name('coach.tactics'); // V2
     Route::get('/coach/effectifs', [CoachTeamController::class, 'index'])->name('coach.effectifs');
     Route::get('/coach/team/{team}', [CoachTeamController::class, 'show'])->name('coach.team');
     Route::post('/coach/team/{team}/players', [CoachTeamController::class, 'addPlayer'])->name('coach.team.add-player');
