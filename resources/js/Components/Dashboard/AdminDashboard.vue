@@ -1,8 +1,9 @@
 <script setup>
 import { usePage } from '@inertiajs/vue3';
 import StatCard from './StatCard.vue';
+import LatestAnnouncements from './LatestAnnouncements.vue';
 
-const club = usePage().props.club;
+const { club, latestAnnouncements } = usePage().props;
 </script>
 
 <template>
@@ -34,5 +35,7 @@ const club = usePage().props.club;
                 </template>
             </StatCard>
         </div>
+
+        <LatestAnnouncements :announcements="latestAnnouncements" />
     </div>
 </template>

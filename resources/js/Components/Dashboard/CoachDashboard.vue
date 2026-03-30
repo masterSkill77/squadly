@@ -1,8 +1,9 @@
 <script setup>
 import { usePage, Link } from '@inertiajs/vue3';
 import { sportLabels } from '@/Utils/sportLabels';
+import LatestAnnouncements from './LatestAnnouncements.vue';
 
-const { coachTeams, club, nextEvent } = usePage().props;
+const { coachTeams, club, nextEvent, latestAnnouncements } = usePage().props;
 const totalPlayers = (coachTeams || []).reduce((sum, t) => sum + t.players_count, 0);
 </script>
 
@@ -58,5 +59,7 @@ const totalPlayers = (coachTeams || []).reduce((sum, t) => sum + t.players_count
         <div v-else class="rounded-xl border border-dashed border-gray-300 p-10 text-center">
             <p class="text-sm text-gray-400">Vous n'avez pas encore d'équipe assignée. Contactez le président de votre club.</p>
         </div>
+
+        <LatestAnnouncements :announcements="latestAnnouncements" />
     </div>
 </template>

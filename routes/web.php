@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClubController;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CoachAttendanceController;
 use App\Http\Controllers\CoachConvocationController;
@@ -47,6 +48,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/members/{member}', [MemberController::class, 'destroy'])->name('members.destroy');
     Route::put('/members/{member}/sport-profile', [MemberController::class, 'updateSportProfile'])->name('members.sport-profile');
     Route::put('/members/{member}/teams', [MemberController::class, 'updateTeams'])->name('members.teams');
+
+    Route::get('/annonces', [AnnouncementController::class, 'index'])->name('announcements.index');
+    Route::post('/annonces', [AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::delete('/annonces/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
 
     Route::get('/events', [EventController::class, 'index'])->name('events.index');
     Route::post('/events', [EventController::class, 'store'])->name('events.store');

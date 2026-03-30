@@ -1,8 +1,9 @@
 <script setup>
 import { usePage, Link, router } from '@inertiajs/vue3';
 import { sportLabels } from '@/Utils/sportLabels';
+import LatestAnnouncements from './LatestAnnouncements.vue';
 
-const { myTeams, club, nextEvent, pendingConvocations } = usePage().props;
+const { myTeams, club, nextEvent, pendingConvocations, latestAnnouncements } = usePage().props;
 
 function respond(id, status) {
     router.put(route('membre.convocations.respond', id), { status }, { preserveScroll: true });
@@ -69,5 +70,7 @@ function respond(id, status) {
                 <p v-else class="mt-2 text-sm text-gray-400">Vous n'êtes dans aucune équipe.</p>
             </div>
         </div>
+
+        <LatestAnnouncements :announcements="latestAnnouncements" />
     </div>
 </template>

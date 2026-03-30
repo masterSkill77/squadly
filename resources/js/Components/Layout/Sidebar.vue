@@ -102,6 +102,16 @@ const showProfileMenu = ref(false);
                 Convocations
             </SidebarLink>
 
+            <!-- Communication -->
+            <p v-if="!collapsed" class="mt-6 mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Communication</p>
+
+            <SidebarLink :href="route('announcements.index')" :active="route().current('announcements.*')" :collapsed="collapsed">
+                <template #icon>
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 1 1 0-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38a.75.75 0 0 1-.999-.272 17.957 17.957 0 0 1-1.41-2.992M10.34 15.84a21.174 21.174 0 0 0 0-7.68m0 7.68a22.39 22.39 0 0 1-1.453 4.235M10.34 8.16c.388-.948.852-1.856 1.381-2.717a.75.75 0 0 1 .999-.272l.657.38c.524.3.71.96.463 1.511-.273.617-.508 1.254-.705 1.905M14.084 8.16c.688.06 1.386.09 2.09.09h.75a4.5 4.5 0 0 1 0 9h-.75c-.704 0-1.402.03-2.09.09" /></svg>
+                </template>
+                Annonces
+            </SidebarLink>
+
             <!-- Admin only: Documents -->
             <template v-if="isAdmin">
                 <p v-if="!collapsed" class="mt-6 mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Autre</p>

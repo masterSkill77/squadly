@@ -1,0 +1,114 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Enums\AnnouncementTarget;
+use App\Enums\Role;
+use App\Models\Announcement;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class AnnouncementController extends Controller
+{
+    public function index(Request $request): Response
+    {
+        $user = $request->user();
+        $club = $user->resolveClub();
+        $role = $user->getRoleNames()->first() ?? Role::Membre->value;
+        $isAdmin = $role === Role::Admin->value;
+        $isCoach = $role === Role::Coach->value;
+
+        $announcements = Announcement::visibleTo($user)
+            ->with('author:id,name', 'teams:id,name', 'section:id,sport_type')
+            ->latest()
+            ->get()
+            ->map(fn ($a) => [
+                'id' => $a->id,
+                'title' => $a->title,
+                'content' => $a->content,
+                'target_type' => $a->target_type->value,
+                'target_label' => $a->target_label,
+                'author_name' => $a->author->name,
+                'created_at' => $a->created_at->toIso8601String(),
+                'can_delete' => $a->user_id === $user->id || $isAdmin,
+            ]);
+
+        $teams = [];
+        $sections = [];
+        if ($isAdmin && $club) {
+            $teams = $club->teams()->select('teams.id', 'teams.name')->get();
+            $sections = $club->sections()->select('id', 'sport_type')->get();
+        } elseif ($isCoach) {
+            $teams = $user->teams()->select('teams.id', 'teams.name')->get();
+        }
+
+        return Inertia::render('Announcements/Index', [
+            'announcements' => $announcements,
+            'teams' => $teams,
+            'sections' => $sections,
+            'canCreate' => $isAdmin || $isCoach,
+            'isAdmin' => $isAdmin,
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $club = $user->resolveClub();
+        $role = $user->getRoleNames()->first() ?? Role::Membre->value;
+        $isAdmin = $role === Role::Admin->value;
+        $isCoach = $role === Role::Coach->value;
+
+        abort_if(!$isAdmin && !$isCoach, 403);
+
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string|max:5000',
+            'target_type' => 'required|string|in:club,section,teams',
+            'section_id' => 'nullable|required_if:target_type,section|exists:sections,id',
+            'team_ids' => 'nullable|required_if:target_type,teams|array|min:1',
+            'team_ids.*' => 'exists:teams,id',
+        ]);
+
+        // Coach can only target their own teams
+        if ($isCoach) {
+            abort_if($request->target_type !== 'teams', 403);
+            $coachTeamIds = $user->teams()->pluck('teams.id');
+            foreach ($request->team_ids ?? [] as $teamId) {
+                abort_if(!$coachTeamIds->contains($teamId), 403);
+            }
+        }
+
+        $announcement = Announcement::create([
+            'user_id' => $user->id,
+            'club_id' => $club->id,
+            'section_id' => $request->target_type === 'section' ? $request->section_id : null,
+            'title' => $request->title,
+            'content' => $request->content,
+            'target_type' => $request->target_type,
+        ]);
+
+        if ($request->target_type === 'teams' && $request->team_ids) {
+            $announcement->teams()->attach($request->team_ids);
+        }
+
+        return back()->with('success', 'Annonce publiée avec succès.');
+    }
+
+    public function destroy(Request $request, Announcement $announcement): RedirectResponse
+    {
+        $user = $request->user();
+        $role = $user->getRoleNames()->first() ?? Role::Membre->value;
+        $isAdmin = $role === Role::Admin->value;
+
+        abort_if($announcement->user_id !== $user->id && !$isAdmin, 403);
+        abort_if($announcement->club_id !== $user->resolveClub()?->id, 403);
+
+        $announcement->delete();
+
+        return back()->with('success', 'Annonce supprimée.');
+    }
+}

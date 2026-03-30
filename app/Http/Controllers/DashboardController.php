@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\ConvocationStatus;
 use App\Enums\Role;
+use App\Models\Announcement;
 use App\Models\Convocation;
 use App\Models\Event;
 use App\Models\MemberProfile;
+use Illuminate\Support\Str;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,6 +30,19 @@ class DashboardController extends Controller
             'permissions' => $user->getAllPermissions()->pluck('name'),
             'hasCompletedOnboarding' => $user->has_completed_onboarding ?? false,
         ];
+
+        $data['latestAnnouncements'] = Announcement::visibleTo($user)
+            ->with('author:id,name')
+            ->latest()
+            ->take(3)
+            ->get()
+            ->map(fn ($a) => [
+                'id' => $a->id,
+                'title' => $a->title,
+                'content' => Str::limit($a->content, 100),
+                'author_name' => $a->author->name,
+                'created_at' => $a->created_at->toIso8601String(),
+            ]);
 
         if ($role === Role::Admin->value) {
             $club = $user->club?->loadCount(['sections', 'teams', 'memberProfiles']);
