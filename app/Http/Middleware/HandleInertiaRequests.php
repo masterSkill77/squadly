@@ -36,6 +36,13 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
                 'role' => fn () => $request->user()?->getRoleNames()->first(),
                 'unread_notifications_count' => fn () => $request->user()?->unreadNotifications()->count() ?? 0,
+                'club' => fn () => $request->user() ? (function () use ($request) {
+                    $club = $request->user()->resolveClub();
+                    return $club ? [
+                        'name' => $club->name,
+                        'logo_url' => $club->getFirstMediaUrl('logo'),
+                    ] : null;
+                })() : null,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

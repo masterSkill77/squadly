@@ -29,6 +29,7 @@ class OnboardingController extends Controller
         $request->validate([
             'club_name' => 'required|string|max:255',
             'city' => 'nullable|string|max:255',
+            'logo' => 'nullable|image|max:5120',
             'sports' => 'nullable|array',
             'sports.*' => "string|in:{$validSports}",
             'teams' => 'nullable|array',
@@ -44,6 +45,10 @@ class OnboardingController extends Controller
             'name' => $request->club_name,
             'city' => $request->city,
         ]);
+
+        if ($request->hasFile('logo')) {
+            $club->addMediaFromRequest('logo')->toMediaCollection('logo');
+        }
 
         $sectionMap = [];
         foreach ($request->sports ?? [] as $sport) {

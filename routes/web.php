@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
     Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
     Route::get('/club', [ClubController::class, 'show'])->name('club.show');
+    Route::post('/club', [ClubController::class, 'update'])->name('club.update');
     Route::post('/sections', [SectionController::class, 'store'])->name('sections.store');
     Route::delete('/sections/{section}', [SectionController::class, 'destroy'])->name('sections.destroy');
     Route::post('/teams', [TeamController::class, 'store'])->name('teams.store');

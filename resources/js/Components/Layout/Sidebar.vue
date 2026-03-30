@@ -13,6 +13,7 @@ const userName = page.props.auth.user.name;
 const userInitial = userName.charAt(0).toUpperCase();
 const isAdmin = role === Role.Admin;
 const isCoach = role === Role.Coach;
+const club = page.props.auth.club;
 
 const showProfileMenu = ref(false);
 </script>
@@ -25,8 +26,9 @@ const showProfileMenu = ref(false);
         <!-- Logo + Collapse -->
         <div class="flex h-16 items-center justify-between border-b border-gray-100 px-4">
             <Link :href="route('dashboard')" class="flex items-center gap-2 overflow-hidden">
-                <img src="/squadly-icon-square.svg" alt="Squadly" class="h-8 w-8 shrink-0" />
-                <span v-if="!collapsed" class="text-lg font-bold text-gray-900 transition-opacity">Squadly</span>
+                <img v-if="club?.logo_url" :src="club.logo_url" :alt="club.name" class="h-8 w-8 shrink-0 rounded-lg object-cover" />
+                <img v-else src="/squadly-icon-square.svg" alt="Squadly" class="h-8 w-8 shrink-0" />
+                <span v-if="!collapsed" class="text-lg font-bold text-gray-900 transition-opacity">{{ club?.name || 'Squadly' }}</span>
             </Link>
             <button
                 class="shrink-0 rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"

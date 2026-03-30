@@ -11,6 +11,7 @@ const props = defineProps({ sportTemplates: Array });
 const form = useForm({
     club_name: '',
     city: '',
+    logo: null,
     sports: [],
     teams: [{ name: '', sport: '', age_category: '' }],
 });
@@ -50,7 +51,7 @@ function prev() {
 }
 
 function submit() {
-    form.post(route('onboarding.store'));
+    form.post(route('onboarding.store'), { forceFormData: true });
 }
 </script>
 
