@@ -1,9 +1,9 @@
 <script setup>
-import { usePage } from '@inertiajs/vue3';
+import { usePage, Link } from '@inertiajs/vue3';
 import StatCard from './StatCard.vue';
 import LatestAnnouncements from './LatestAnnouncements.vue';
 
-const { club, latestAnnouncements } = usePage().props;
+const { club, latestAnnouncements, documentAlerts } = usePage().props;
 </script>
 
 <template>
@@ -34,6 +34,21 @@ const { club, latestAnnouncements } = usePage().props;
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
                 </template>
             </StatCard>
+        </div>
+
+        <!-- Document alerts -->
+        <div v-if="documentAlerts && (documentAlerts.expired > 0 || documentAlerts.missing > 0)" class="rounded-xl border border-red-100 bg-red-50/30 p-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <svg class="h-5 w-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+                    <p class="text-sm font-medium text-red-700">
+                        <span v-if="documentAlerts.expired">{{ documentAlerts.expired }} document{{ documentAlerts.expired > 1 ? 's' : '' }} expiré{{ documentAlerts.expired > 1 ? 's' : '' }}</span>
+                        <span v-if="documentAlerts.expired && documentAlerts.missing"> · </span>
+                        <span v-if="documentAlerts.missing">{{ documentAlerts.missing }} document{{ documentAlerts.missing > 1 ? 's' : '' }} manquant{{ documentAlerts.missing > 1 ? 's' : '' }}</span>
+                    </p>
+                </div>
+                <Link :href="route('documents.index')" class="text-xs font-medium text-red-600 hover:text-red-700">Voir les documents</Link>
+            </div>
         </div>
 
         <LatestAnnouncements :announcements="latestAnnouncements" />

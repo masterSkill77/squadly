@@ -5,9 +5,11 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CoachAttendanceController;
 use App\Http\Controllers\CoachConvocationController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\CoachEventController;
 use App\Http\Controllers\ConvocationController;
 use App\Http\Controllers\MemberConvocationController;
+use App\Http\Controllers\MemberEventController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\CoachTeamController;
 use App\Http\Controllers\MemberController;
@@ -49,6 +51,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/members/{member}/sport-profile', [MemberController::class, 'updateSportProfile'])->name('members.sport-profile');
     Route::put('/members/{member}/teams', [MemberController::class, 'updateTeams'])->name('members.teams');
 
+    Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
+    Route::post('/documents', [DocumentController::class, 'store'])->name('documents.store');
+    Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->name('documents.destroy');
+    Route::get('/documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
+
     Route::get('/annonces', [AnnouncementController::class, 'index'])->name('announcements.index');
     Route::post('/annonces', [AnnouncementController::class, 'store'])->name('announcements.store');
     Route::delete('/annonces/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
@@ -65,9 +72,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/convocations/event/{event}', [ConvocationController::class, 'show'])->name('convocations.show');
     Route::post('/convocations/event/{event}', [ConvocationController::class, 'store'])->name('convocations.store');
 
+    Route::get('/mes-evenements', [MemberEventController::class, 'index'])->name('membre.events');
     Route::get('/mes-convocations', [MemberConvocationController::class, 'index'])->name('membre.convocations');
     Route::put('/mes-convocations/{convocation}', [MemberConvocationController::class, 'respond'])->name('membre.convocations.respond');
 
+    Route::get('/coach/tactique', fn () => \Inertia\Inertia::render('Coach/Tactics'))->name('coach.tactics');
     Route::get('/coach/effectifs', [CoachTeamController::class, 'index'])->name('coach.effectifs');
     Route::get('/coach/team/{team}', [CoachTeamController::class, 'show'])->name('coach.team');
     Route::post('/coach/team/{team}/players', [CoachTeamController::class, 'addPlayer'])->name('coach.team.add-player');

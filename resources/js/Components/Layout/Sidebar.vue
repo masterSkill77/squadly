@@ -76,12 +76,19 @@ const showProfileMenu = ref(false);
                     </template>
                     Effectifs
                 </SidebarLink>
+
+                <SidebarLink :href="route('coach.tactics')" :active="route().current('coach.tactics')" :collapsed="collapsed">
+                    <template #icon>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125Z" /></svg>
+                    </template>
+                    Tactique
+                </SidebarLink>
             </template>
 
             <!-- Shared: Planning -->
             <p v-if="!collapsed" class="mt-6 mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Planning</p>
 
-            <SidebarLink :href="isAdmin ? route('events.index') : isCoach ? route('coach.events') : '#'" :active="route().current('events.*') || route().current('coach.events*')" :collapsed="collapsed">
+            <SidebarLink :href="isAdmin ? route('events.index') : isCoach ? route('coach.events') : route('membre.events')" :active="route().current('events.*') || route().current('coach.events*') || route().current('membre.events*')" :collapsed="collapsed">
                 <template #icon>
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
                 </template>
@@ -116,7 +123,7 @@ const showProfileMenu = ref(false);
             <template v-if="isAdmin">
                 <p v-if="!collapsed" class="mt-6 mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Autre</p>
 
-                <SidebarLink href="#" :active="false" :collapsed="collapsed">
+                <SidebarLink :href="route('documents.index')" :active="route().current('documents.*')" :collapsed="collapsed">
                     <template #icon>
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" /></svg>
                     </template>

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AttendanceStatus;
+use App\Enums\DocumentType;
 use App\Enums\Role;
 use App\Models\Attendance;
+use App\Models\Document;
 use App\Models\Event;
 use App\Models\MemberProfile;
 use App\Models\MemberSectionProfile;
@@ -93,7 +95,47 @@ class MemberController extends Controller
             ]),
             'teamIds' => $teamIds,
             'attendance' => $this->getAttendanceStats($member->user_id, $club->teams->pluck('id')),
+            'documents' => $this->getMemberDocuments($member->user_id, $club->id),
+            'currentSeason' => Document::currentSeason(),
         ]);
+    }
+
+    private function getMemberDocuments(int $userId, int $clubId): array
+    {
+        $season = Document::currentSeason();
+        $existing = Document::where('user_id', $userId)
+            ->where('club_id', $clubId)
+            ->where('season', $season)
+            ->get()
+            ->keyBy(fn ($d) => $d->type->value);
+
+        $docs = [];
+        foreach (DocumentType::requiredTypes() as $type) {
+            $doc = $existing->get($type->value);
+            $docs[] = [
+                'id' => $doc?->id,
+                'type' => $type->value,
+                'type_label' => $type->label(),
+                'status' => $doc ? $doc->status : 'missing',
+                'status_label' => $doc ? $doc->status_label : 'Manquant',
+                'expires_at' => $doc?->expires_at?->format('Y-m-d'),
+                'file_url' => $doc?->getFirstMediaUrl('document_file'),
+            ];
+        }
+
+        foreach ($existing->where('type', DocumentType::Other) as $doc) {
+            $docs[] = [
+                'id' => $doc->id,
+                'type' => 'other',
+                'type_label' => $doc->custom_label ?? 'Autre',
+                'status' => $doc->status,
+                'status_label' => $doc->status_label,
+                'expires_at' => $doc->expires_at?->format('Y-m-d'),
+                'file_url' => $doc->getFirstMediaUrl('document_file'),
+            ];
+        }
+
+        return $docs;
     }
 
     private function getAttendanceStats(int $userId, $clubTeamIds): array

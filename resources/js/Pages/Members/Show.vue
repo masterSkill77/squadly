@@ -7,9 +7,10 @@ import SportProfileCard from '@/Components/Members/SportProfileCard.vue';
 import TeamAssignCard from '@/Components/Members/TeamAssignCard.vue';
 import CoachTeamsCard from '@/Components/Members/CoachTeamsCard.vue';
 import AttendanceCard from '@/Components/Attendance/AttendanceCard.vue';
+import DocumentsCard from '@/Components/Members/DocumentsCard.vue';
 import { Role } from '@/Utils/roles';
 
-const props = defineProps({ member: Object, sections: Array, teamIds: Array, attendance: Object });
+const props = defineProps({ member: Object, sections: Array, teamIds: Array, attendance: Object, documents: Array, currentSeason: String });
 
 const isCoach = props.member.role === Role.Coach;
 
@@ -75,6 +76,9 @@ function deleteMember() {
 
                 <!-- Joueur: équipes assignées (vert) -->
                 <TeamAssignCard v-else :sections="sections" :member-id="member.id" :team-ids="teamIds" />
+
+                <!-- Documents -->
+                <DocumentsCard v-if="documents" :member-id="member.id" :user-id="member.user_id" :documents="documents" :current-season="currentSeason" />
 
                 <!-- Présences -->
                 <AttendanceCard v-if="!isCoach && attendance" :attendance="attendance" />

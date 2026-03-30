@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\ConvocationStatus;
 use App\Enums\Role;
+use App\Enums\DocumentType;
 use App\Models\Announcement;
 use App\Models\Convocation;
+use App\Models\Document;
 use App\Models\Event;
 use App\Models\MemberProfile;
 use Illuminate\Support\Str;
@@ -67,6 +69,16 @@ class DashboardController extends Controller
                 'start_at' => $nextEvent->start_at->toIso8601String(),
                 'team_name' => $nextEvent->team->name,
             ] : null;
+
+            if ($club) {
+                $season = Document::currentSeason();
+                $expiredDocs = Document::where('club_id', $club->id)->where('season', $season)->where('expires_at', '<', now())->count();
+                $existingDocs = Document::where('club_id', $club->id)->where('season', $season)
+                    ->whereIn('type', collect(DocumentType::requiredTypes())->map(fn ($t) => $t->value))->count();
+                $totalRequired = ($club->member_profiles_count ?? 0) * count(DocumentType::requiredTypes());
+                $missingDocs = max(0, $totalRequired - $existingDocs);
+                $data['documentAlerts'] = ['expired' => $expiredDocs, 'missing' => $missingDocs];
+            }
         }
 
         if ($role === Role::Coach->value) {
