@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Convocation;
 use App\Models\Event;
 use App\Models\MemberProfile;
+use App\Models\User;
+use App\Notifications\ConvocationReceived;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -67,10 +70,19 @@ class ConvocationController extends Controller
         $existingConvocations = Convocation::where('event_id', $event->id)->get()->keyBy('user_id');
 
         // Add new convocations
+        $newUserIds = [];
         foreach ($selectedIds as $userId) {
             if (!$existingConvocations->has($userId)) {
                 Convocation::create(['event_id' => $event->id, 'user_id' => $userId]);
+                $newUserIds[] = $userId;
             }
+        }
+
+        // Notify newly convoked players
+        if ($newUserIds) {
+            $event->load('team');
+            $users = User::whereIn('id', $newUserIds)->get();
+            Notification::send($users, new ConvocationReceived($event));
         }
 
         // Remove deselected (don't touch those still selected)

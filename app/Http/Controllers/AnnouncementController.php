@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Enums\AnnouncementTarget;
 use App\Enums\Role;
 use App\Models\Announcement;
+use App\Models\MemberProfile;
+use App\Models\User;
+use App\Notifications\AnnouncementPublished;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -95,6 +99,13 @@ class AnnouncementController extends Controller
             $announcement->teams()->attach($request->team_ids);
         }
 
+        // Notify targeted users
+        $recipients = $this->resolveRecipients($announcement, $club, $user);
+        if ($recipients->isNotEmpty()) {
+            $announcement->load('author');
+            Notification::send($recipients, new AnnouncementPublished($announcement));
+        }
+
         return back()->with('success', 'Annonce publiée avec succès.');
     }
 
@@ -110,5 +121,22 @@ class AnnouncementController extends Controller
         $announcement->delete();
 
         return back()->with('success', 'Annonce supprimée.');
+    }
+
+    private function resolveRecipients(Announcement $announcement, $club, User $excludeUser)
+    {
+        $userIds = collect();
+
+        if ($announcement->target_type === AnnouncementTarget::Club) {
+            $userIds = $club->memberProfiles()->pluck('user_id');
+        } elseif ($announcement->target_type === AnnouncementTarget::Section) {
+            $teamIds = $club->teams()->where('section_id', $announcement->section_id)->pluck('teams.id');
+            $userIds = \DB::table('team_members')->whereIn('team_id', $teamIds)->pluck('user_id')->unique();
+        } elseif ($announcement->target_type === AnnouncementTarget::Teams) {
+            $teamIds = $announcement->teams()->pluck('teams.id');
+            $userIds = \DB::table('team_members')->whereIn('team_id', $teamIds)->pluck('user_id')->unique();
+        }
+
+        return User::whereIn('id', $userIds)->where('id', '!=', $excludeUser->id)->get();
     }
 }

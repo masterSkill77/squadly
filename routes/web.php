@@ -13,6 +13,7 @@ use App\Http\Controllers\MemberEventController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\CoachTeamController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ProfileController;
@@ -95,6 +96,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/coach/convocations/event/{event}', [CoachConvocationController::class, 'show'])->name('coach.convocations.show');
     Route::post('/coach/convocations/event/{event}', [CoachConvocationController::class, 'store'])->name('coach.convocations.store');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread', [NotificationController::class, 'unread'])->name('notifications.unread');
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -11,6 +11,7 @@ use App\Models\Event;
 use App\Models\MemberProfile;
 use App\Models\MemberSectionProfile;
 use App\Models\TeamMember;
+use App\Notifications\MemberInvited;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -174,10 +175,17 @@ class MemberController extends Controller
             'sport_profiles.*.sport_profile' => 'required|array',
         ]);
 
+        $temporaryPassword = str()->random(10);
+        $isNewUser = false;
+
         $user = \App\Models\User::firstOrCreate(
             ['email' => $request->email],
-            ['name' => "{$request->first_name} {$request->last_name}", 'password' => bcrypt(str()->random(16))],
+            ['name' => "{$request->first_name} {$request->last_name}", 'password' => bcrypt($temporaryPassword)],
         );
+
+        if ($user->wasRecentlyCreated) {
+            $isNewUser = true;
+        }
 
         if (!$user->hasRole(Role::Admin->value)) {
             $user->syncRoles([$request->role]);
@@ -206,6 +214,10 @@ class MemberController extends Controller
                     );
                 }
             }
+        }
+
+        if ($isNewUser) {
+            $user->notify(new MemberInvited($club, $temporaryPassword));
         }
 
         return redirect()->route('members.show', $member)->with('success', 'Membre ajouté avec succès.');

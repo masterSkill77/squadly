@@ -9,8 +9,10 @@ use App\Models\Event;
 use App\Models\MemberProfile;
 use App\Models\MemberSectionProfile;
 use App\Models\Team;
+use App\Models\Club;
 use App\Models\TeamMember;
 use App\Models\User;
+use App\Notifications\MemberInvited;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -101,9 +103,10 @@ class CoachTeamController extends Controller
         $team->load('section:id,club_id');
         $clubId = $team->section->club_id;
 
+        $temporaryPassword = str()->random(10);
         $player = User::firstOrCreate(
             ['email' => $request->email],
-            ['name' => "{$request->first_name} {$request->last_name}", 'password' => bcrypt(str()->random(16))],
+            ['name' => "{$request->first_name} {$request->last_name}", 'password' => bcrypt($temporaryPassword)],
         );
 
         if (!$player->hasAnyRole([Role::Admin->value, Role::Coach->value])) {
@@ -122,6 +125,11 @@ class CoachTeamController extends Controller
                 ['user_id' => $player->id, 'section_id' => $team->section_id],
                 ['sport_profile' => $request->sport_profile],
             );
+        }
+
+        if ($player->wasRecentlyCreated) {
+            $club = Club::find($clubId);
+            $player->notify(new MemberInvited($club, $temporaryPassword));
         }
 
         return back()->with('success', 'Joueur ajouté avec succès.');
