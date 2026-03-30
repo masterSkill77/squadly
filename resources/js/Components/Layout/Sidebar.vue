@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import SidebarLink from './SidebarLink.vue';
 import { Role } from '@/Utils/roles';
@@ -6,9 +7,14 @@ import { Role } from '@/Utils/roles';
 defineProps({ collapsed: Boolean });
 defineEmits(['toggle']);
 
-const role = usePage().props.auth.role;
+const page = usePage();
+const role = page.props.auth.role;
+const userName = page.props.auth.user.name;
+const userInitial = userName.charAt(0).toUpperCase();
 const isAdmin = role === Role.Admin;
 const isCoach = role === Role.Coach;
+
+const showProfileMenu = ref(false);
 </script>
 
 <template>
@@ -16,12 +22,20 @@ const isCoach = role === Role.Coach;
         class="fixed inset-y-0 left-0 z-30 flex flex-col border-r border-gray-200 bg-white transition-all duration-300"
         :class="collapsed ? 'w-16' : 'w-60'"
     >
-        <!-- Logo -->
-        <div class="flex h-16 items-center border-b border-gray-100 px-4">
+        <!-- Logo + Collapse -->
+        <div class="flex h-16 items-center justify-between border-b border-gray-100 px-4">
             <Link :href="route('dashboard')" class="flex items-center gap-2 overflow-hidden">
                 <img src="/squadly-icon-square.svg" alt="Squadly" class="h-8 w-8 shrink-0" />
                 <span v-if="!collapsed" class="text-lg font-bold text-gray-900 transition-opacity">Squadly</span>
             </Link>
+            <button
+                class="shrink-0 rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+                @click="$emit('toggle')"
+            >
+                <svg class="h-4 w-4 transition-transform" :class="collapsed ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+                </svg>
+            </button>
         </div>
 
         <!-- Nav -->
@@ -101,16 +115,36 @@ const isCoach = role === Role.Coach;
             </template>
         </nav>
 
-        <!-- Collapse toggle -->
+        <!-- Profile -->
         <div class="border-t border-gray-100 p-2">
-            <button
-                class="flex w-full items-center justify-center rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
-                @click="$emit('toggle')"
-            >
-                <svg class="h-5 w-5 transition-transform" :class="collapsed ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
-                </svg>
-            </button>
+            <div class="relative">
+                <button
+                    class="flex w-full items-center gap-3 rounded-lg p-2 text-left transition hover:bg-gray-100"
+                    :class="collapsed ? 'justify-center' : ''"
+                    @click="showProfileMenu = !showProfileMenu"
+                >
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">{{ userInitial }}</span>
+                    <template v-if="!collapsed">
+                        <span class="min-w-0 flex-1 truncate text-sm font-medium text-gray-700">{{ userName }}</span>
+                        <svg class="h-4 w-4 shrink-0 text-gray-400 transition-transform" :class="showProfileMenu ? 'rotate-180' : ''" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+                    </template>
+                </button>
+
+                <div v-if="showProfileMenu" class="fixed inset-0 z-40" @click="showProfileMenu = false" />
+                <Transition
+                    enter-active-class="transition ease-out duration-150"
+                    enter-from-class="opacity-0 scale-95"
+                    enter-to-class="opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-75"
+                    leave-from-class="opacity-100 scale-100"
+                    leave-to-class="opacity-0 scale-95"
+                >
+                    <div v-if="showProfileMenu" class="absolute bottom-full left-0 z-50 mb-1 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                        <Link :href="route('profile.edit')" class="block px-4 py-2 text-sm text-gray-700 transition hover:bg-gray-50" @click="showProfileMenu = false">Mon profil</Link>
+                        <Link :href="route('logout')" method="post" as="button" class="block w-full px-4 py-2 text-left text-sm text-gray-700 transition hover:bg-gray-50" @click="showProfileMenu = false">Déconnexion</Link>
+                    </div>
+                </Transition>
+            </div>
         </div>
     </aside>
 </template>

@@ -4,8 +4,14 @@ import Sidebar from '@/Components/Layout/Sidebar.vue';
 import TopBar from '@/Components/Layout/TopBar.vue';
 import Toast from '@/Components/Layout/Toast.vue';
 
-const collapsed = ref(false);
+const STORAGE_KEY = 'squadly_sidebar_collapsed';
+const collapsed = ref(localStorage.getItem(STORAGE_KEY) === 'true');
 const mobileOpen = ref(false);
+
+function toggleSidebar() {
+    collapsed.value = !collapsed.value;
+    localStorage.setItem(STORAGE_KEY, collapsed.value);
+}
 </script>
 
 <template>
@@ -19,7 +25,7 @@ const mobileOpen = ref(false);
 
         <!-- Sidebar (desktop: always visible, mobile: overlay) -->
         <div class="hidden lg:block">
-            <Sidebar :collapsed="collapsed" @toggle="collapsed = !collapsed" />
+            <Sidebar :collapsed="collapsed" @toggle="toggleSidebar" />
         </div>
         <div v-if="mobileOpen" class="fixed inset-y-0 left-0 z-30 lg:hidden">
             <Sidebar :collapsed="false" @toggle="mobileOpen = false" />
