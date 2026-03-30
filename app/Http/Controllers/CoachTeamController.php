@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AttendanceStatus;
 use App\Enums\Role;
+use App\Models\Attendance;
+use App\Models\Event;
 use App\Models\MemberProfile;
 use App\Models\MemberSectionProfile;
 use App\Models\Team;
@@ -137,6 +140,13 @@ class CoachTeamController extends Controller
             ->where('section_id', $team->section_id)
             ->first();
 
+        $eventIds = Event::where('team_id', $team->id)->pluck('id');
+        $records = Attendance::where('user_id', $user->id)->whereIn('event_id', $eventIds)->get();
+        $total = $records->count();
+        $present = $records->where('status', AttendanceStatus::Present)->count();
+        $absent = $records->where('status', AttendanceStatus::Absent)->count();
+        $justified = $records->where('status', AttendanceStatus::Justified)->count();
+
         return Inertia::render('Coach/Player', [
             'team' => [
                 'id' => $team->id,
@@ -153,6 +163,13 @@ class CoachTeamController extends Controller
                 'birth_date' => $profile?->birth_date?->format('Y-m-d'),
                 'photo_url' => $profile?->getFirstMediaUrl('photo'),
                 'sport_profile' => $sportProfile?->sport_profile,
+            ],
+            'attendance' => [
+                'total' => $total,
+                'present' => $present,
+                'absent' => $absent,
+                'justified' => $justified,
+                'rate' => $total > 0 ? round(($present / $total) * 100, 1) : null,
             ],
         ]);
     }

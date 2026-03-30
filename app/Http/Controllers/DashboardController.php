@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ConvocationStatus;
 use App\Enums\Role;
+use App\Models\Convocation;
 use App\Models\Event;
 use App\Models\MemberProfile;
 use Illuminate\Http\RedirectResponse;
@@ -107,6 +109,19 @@ class DashboardController extends Controller
                 'start_at' => $nextEvent->start_at->toIso8601String(),
                 'team_name' => $nextEvent->team->name,
             ] : null;
+
+            $data['pendingConvocations'] = Convocation::where('user_id', $user->id)
+                ->where('status', ConvocationStatus::Pending->value)
+                ->whereHas('event', fn ($q) => $q->where('start_at', '>=', now()))
+                ->with('event.team:id,name')
+                ->get()
+                ->sortBy(fn ($c) => $c->event->start_at)
+                ->map(fn ($c) => [
+                    'id' => $c->id,
+                    'event_title' => $c->event->title,
+                    'event_start_at' => $c->event->start_at->toIso8601String(),
+                    'team_name' => $c->event->team->name,
+                ])->values();
         }
 
         return Inertia::render('Dashboard', $data);

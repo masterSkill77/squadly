@@ -2,9 +2,10 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
+import AttendanceCard from '@/Components/Attendance/AttendanceCard.vue';
 import { sportLabels } from '@/Utils/sportLabels';
 
-const props = defineProps({ team: Object, player: Object });
+const props = defineProps({ team: Object, player: Object, attendance: Object });
 
 const infoForm = useForm({
     first_name: props.player.first_name,
@@ -131,6 +132,9 @@ function submitSport() {
                         </div>
                     </div>
                 </div>
+
+                <!-- Présences -->
+                <AttendanceCard v-if="attendance" :attendance="attendance" />
 
                 <!-- Team info -->
                 <div class="rounded-xl border border-blue-100 bg-blue-50/30 p-4">

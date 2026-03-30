@@ -29,7 +29,7 @@ function openEdit(event) {
             <h2 class="text-lg font-semibold text-gray-900">Événements</h2>
         </template>
 
-        <EventList :events="events" :teams="teams" @create="openCreate" @edit="openEdit" />
+        <EventList :events="events" :teams="teams" attendance-route-name="coach.attendance.show" convocation-route-name="coach.convocations.show" @create="openCreate" @edit="openEdit" />
 
         <EventModal
             :show="showModal"

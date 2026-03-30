@@ -6,6 +6,7 @@ use App\Enums\EventType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Event extends Model
 {
@@ -25,6 +26,16 @@ class Event extends Model
     public function team(): BelongsTo
     {
         return $this->belongsTo(Team::class);
+    }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function convocations(): HasMany
+    {
+        return $this->hasMany(Convocation::class);
     }
 
     public function getTypeLabelAttribute(): string

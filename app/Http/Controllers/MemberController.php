@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AttendanceStatus;
 use App\Enums\Role;
+use App\Models\Attendance;
+use App\Models\Event;
 use App\Models\MemberProfile;
 use App\Models\MemberSectionProfile;
 use App\Models\TeamMember;
@@ -89,7 +92,26 @@ class MemberController extends Controller
                 'sport_profile' => $sectionProfiles->get($s->id)?->sport_profile,
             ]),
             'teamIds' => $teamIds,
+            'attendance' => $this->getAttendanceStats($member->user_id, $club->teams->pluck('id')),
         ]);
+    }
+
+    private function getAttendanceStats(int $userId, $clubTeamIds): array
+    {
+        $eventIds = Event::whereIn('team_id', $clubTeamIds)->pluck('id');
+        $records = Attendance::where('user_id', $userId)->whereIn('event_id', $eventIds)->get();
+        $total = $records->count();
+        $present = $records->where('status', AttendanceStatus::Present)->count();
+        $absent = $records->where('status', AttendanceStatus::Absent)->count();
+        $justified = $records->where('status', AttendanceStatus::Justified)->count();
+
+        return [
+            'total' => $total,
+            'present' => $present,
+            'absent' => $absent,
+            'justified' => $justified,
+            'rate' => $total > 0 ? round(($present / $total) * 100, 1) : null,
+        ];
     }
 
     public function store(Request $request): RedirectResponse

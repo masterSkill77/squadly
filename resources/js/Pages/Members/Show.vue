@@ -6,9 +6,10 @@ import MemberInfoCard from '@/Components/Members/MemberInfoCard.vue';
 import SportProfileCard from '@/Components/Members/SportProfileCard.vue';
 import TeamAssignCard from '@/Components/Members/TeamAssignCard.vue';
 import CoachTeamsCard from '@/Components/Members/CoachTeamsCard.vue';
+import AttendanceCard from '@/Components/Attendance/AttendanceCard.vue';
 import { Role } from '@/Utils/roles';
 
-const props = defineProps({ member: Object, sections: Array, teamIds: Array });
+const props = defineProps({ member: Object, sections: Array, teamIds: Array, attendance: Object });
 
 const isCoach = props.member.role === Role.Coach;
 
@@ -74,6 +75,9 @@ function deleteMember() {
 
                 <!-- Joueur: équipes assignées (vert) -->
                 <TeamAssignCard v-else :sections="sections" :member-id="member.id" :team-ids="teamIds" />
+
+                <!-- Présences -->
+                <AttendanceCard v-if="!isCoach && attendance" :attendance="attendance" />
 
                 <div class="rounded-xl border border-red-100 bg-red-50/50 p-4">
                     <button class="text-sm font-medium text-red-600 hover:text-red-700" @click="deleteMember">
