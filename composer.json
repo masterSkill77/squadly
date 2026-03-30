@@ -7,6 +7,9 @@
     "license": "proprietary",
     "require": {
         "php": "^8.3",
+        "ext-pgsql": "*",
+        "ext-redis": "*",
+        "ext-exif": "*",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.0",
