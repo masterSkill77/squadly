@@ -103,12 +103,3 @@ resources/js/
 | `coach` | Coach | Ses équipes encadrées |
 | `membre` | Membre | Son profil + son planning |
 
-## Roadmap V1
-
-- [x] Auth + onboarding guidé
-- [x] Organisation (club, sections, équipes)
-- [x] Gestion des membres
-- [x] Dashboard par rôle
-- [ ] Planning & convocations
-- [ ] Présences
-- [ ] Communication & documents
