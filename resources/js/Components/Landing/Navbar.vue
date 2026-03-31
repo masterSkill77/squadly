@@ -16,6 +16,9 @@ const user = usePage().props.auth.user;
                 <img src="/squadly-logo-light.svg" alt="Squadly" class="h-10" />
             </div>
             <div class="flex items-center gap-3">
+                <a href="/squadly-pitch-deck.html" target="_blank" class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition hover:text-gray-900">
+                    Pitch Deck
+                </a>
                 <template v-if="user">
                     <Link :href="route('dashboard')" class="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-700">
                         Tableau de bord
