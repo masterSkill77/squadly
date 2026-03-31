@@ -1,8 +1,32 @@
-# Squadly
+<p align="center">
+  <img src="public/squadly-logo-light.svg" width="320" alt="Squadly Logo">
+</p>
 
-> **Manage less. Play more.**
+<p align="center">
+  <strong>Manage less. Play more.</strong><br>
+  Application web de gestion de clubs sportifs multi-sports.
+</p>
 
-Application web de gestion de clubs sportifs multi-sports (football, basket, natation, handball…).
+<p align="center">
+  <img src="https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white" alt="Laravel">
+  <img src="https://img.shields.io/badge/Vue.js-3-4FC08D?logo=vuedotjs&logoColor=white" alt="Vue.js">
+  <img src="https://img.shields.io/badge/Inertia.js-2-9553E9?logo=inertia&logoColor=white" alt="Inertia.js">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL">
+</p>
+
+---
+
+## Présentation
+
+Squadly est une plateforme tout-en-un pensée pour simplifier la gestion quotidienne des clubs sportifs, quel que soit le sport pratiqué : football, basketball, handball, natation, rugby, volleyball…
+
+L'application s'adresse à trois profils :
+- **Les présidents de club** qui administrent l'ensemble de la structure (membres, sections, équipes, finances)
+- **Les coachs** qui gèrent leurs équipes, planifient les entraînements et matchs, et suivent la présence des joueurs
+- **Les membres / joueurs** qui consultent leur planning, répondent aux convocations et accèdent à leurs documents
+
+Squadly remplace les fichiers Excel, les groupes WhatsApp et les échanges d'emails éparpillés par une interface unique, claire et collaborative.
 
 ## Fonctionnalités
 
