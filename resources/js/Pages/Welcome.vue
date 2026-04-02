@@ -31,7 +31,8 @@ const features = [
     { title: 'Gestion des membres', description: 'Profils complets par sport, multi-sections, imports en masse.', icon: 'users' },
     { title: 'Planning & convocations', description: 'Créez entraînements et matchs, envoyez les convocations en temps réel.', icon: 'calendar' },
     { title: 'Feuilles de présence', description: 'Appel digital, taux de présence automatique, historique complet.', icon: 'clipboard' },
-    { title: 'Multi-sports', description: 'Football, basket, natation, handball… Un seul outil pour tout le club.', icon: 'trophy' },
+    { title: 'Multi-sports', description: 'Football, basket, natation, handball… Un seul outil pour tout le club.', icon: 'globe' },
+    { title: 'Compétitions', description: 'Organisez championnats et tournois, classements en temps réel, calendrier des matchs.', icon: 'trophy' },
     { title: 'Rôles & permissions', description: 'Admin, coach, membre : chacun voit ce qui le concerne.', icon: 'shield' },
     { title: 'Documents & communication', description: 'Certificats, licences, annonces. Alertes pour les docs expirés.', icon: 'folder' },
 ];

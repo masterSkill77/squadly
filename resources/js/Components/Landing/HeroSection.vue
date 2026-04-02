@@ -23,7 +23,7 @@ defineProps({
                         Gérez moins. <span class="text-emerald-600">Jouez plus.</span>
                     </h1>
                     <p class="mt-6 max-w-xl text-lg text-gray-600">
-                        Squadly simplifie la gestion de votre club sportif : membres, équipes, planning, convocations et présences — tout en un seul endroit.
+                        Squadly simplifie la gestion de votre club sportif et de vos compétitions : membres, équipes, planning, championnats et classements — tout en un seul endroit.
                     </p>
                     <div class="mt-10 flex flex-col items-center gap-4 sm:flex-row lg:justify-start">
                         <Link v-if="canRegister" :href="route('register')" class="rounded-xl bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-emerald-200 transition hover:bg-emerald-700 hover:shadow-emerald-300">

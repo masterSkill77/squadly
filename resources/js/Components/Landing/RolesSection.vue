@@ -4,7 +4,7 @@ const checkIcon = `<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 0 1 0 1.414l
 const roles = [
     {
         label: 'Président', color: 'purple', highlight: false,
-        items: ['Vue globale sur toutes les sections', 'Gestion des membres et des rôles', 'Suivi des documents et alertes'],
+        items: ['Vue globale sur toutes les sections', 'Gestion des membres et des rôles', 'Suivi des documents et alertes', 'Inscription aux compétitions'],
     },
     {
         label: 'Coach', color: 'emerald', highlight: true,
@@ -13,6 +13,10 @@ const roles = [
     {
         label: 'Membre / Joueur', color: 'blue', highlight: false,
         items: ['Son planning personnel', 'Réponse aux convocations', 'Profil et documents perso'],
+    },
+    {
+        label: 'Organisateur', color: 'amber', highlight: false,
+        items: ['Création de championnats et tournois', 'Gestion des inscriptions clubs', 'Calendrier et saisie des scores', 'Classements en temps réel'],
     },
 ];
 </script>
@@ -24,7 +28,7 @@ const roles = [
                 <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">Une vue pour chaque rôle</h2>
                 <p class="mt-4 text-lg text-gray-500">Chacun accède exactement à ce dont il a besoin.</p>
             </div>
-            <div class="mt-16 grid gap-8 sm:grid-cols-3">
+            <div class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 <div v-for="role in roles" :key="role.label" class="rounded-2xl border p-8" :class="role.highlight ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-100 bg-white'">
                     <div class="mb-4 inline-flex rounded-lg px-3 py-1 text-sm font-semibold" :class="`bg-${role.color}-50 text-${role.color}-700`">
                         {{ role.label }}
