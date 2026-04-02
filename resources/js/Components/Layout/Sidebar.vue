@@ -13,6 +13,8 @@ const userName = page.props.auth.user.name;
 const userInitial = userName.charAt(0).toUpperCase();
 const isAdmin = role === Role.Admin;
 const isCoach = role === Role.Coach;
+const isOrganizer = role === Role.OrganizerAdmin || role === Role.OrganizerStaff;
+const isOrganizerAdmin = role === Role.OrganizerAdmin;
 const club = page.props.auth.club;
 
 const showProfileMenu = ref(false);
@@ -42,12 +44,24 @@ const showProfileMenu = ref(false);
 
         <!-- Nav -->
         <nav class="flex-1 space-y-1 overflow-y-auto px-2 py-4">
-            <SidebarLink :href="route('dashboard')" :active="route().current('dashboard')" :collapsed="collapsed">
+            <SidebarLink :href="isOrganizer ? route('organizer.dashboard') : route('dashboard')" :active="isOrganizer ? route().current('organizer.dashboard') : route().current('dashboard')" :collapsed="collapsed">
                 <template #icon>
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
                 </template>
                 Tableau de bord
             </SidebarLink>
+
+            <!-- Organizer -->
+            <template v-if="isOrganizer">
+                <p v-if="!collapsed" class="mt-6 mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Organisation</p>
+
+                <SidebarLink :href="route('organizer.competitions.index')" :active="route().current('organizer.competitions.*')" :collapsed="collapsed">
+                    <template #icon>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0 1 16.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 0 1-3.52 1.122 6.023 6.023 0 0 1-3.52-1.122" /></svg>
+                    </template>
+                    Compétitions
+                </SidebarLink>
+            </template>
 
             <!-- Admin only -->
             <template v-if="isAdmin">
@@ -89,7 +103,8 @@ const showProfileMenu = ref(false);
                 -->
             </template>
 
-            <!-- Shared: Planning -->
+            <!-- Shared: Planning (not for organizers) -->
+            <template v-if="!isOrganizer">
             <p v-if="!collapsed" class="mt-6 mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Planning</p>
 
             <SidebarLink :href="isAdmin ? route('events.index') : isCoach ? route('coach.events') : route('membre.events')" :active="route().current('events.*') || route().current('coach.events*') || route().current('membre.events*')" :collapsed="collapsed">
@@ -113,10 +128,24 @@ const showProfileMenu = ref(false);
                 Convocations
             </SidebarLink>
 
-            <!-- Communication -->
-            <p v-if="!collapsed" class="mt-6 mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Communication</p>
+            </template>
 
-            <SidebarLink :href="route('announcements.index')" :active="route().current('announcements.*')" :collapsed="collapsed">
+            <!-- Competitions (club side) -->
+            <template v-if="!isOrganizer">
+                <p v-if="!collapsed" class="mt-6 mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Compétitions</p>
+
+                <SidebarLink :href="route('club.competitions')" :active="route().current('club.competitions*')" :collapsed="collapsed">
+                    <template #icon>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M18.75 4.236c.982.143 1.954.317 2.916.52A6.003 6.003 0 0 1 16.27 9.728M18.75 4.236V4.5c0 2.108-.966 3.99-2.48 5.228m0 0a6.023 6.023 0 0 1-3.52 1.122 6.023 6.023 0 0 1-3.52-1.122" /></svg>
+                    </template>
+                    Compétitions
+                </SidebarLink>
+            </template>
+
+            <!-- Communication -->
+            <p v-if="!collapsed && !isOrganizer" class="mt-6 mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Communication</p>
+
+            <SidebarLink v-if="!isOrganizer" :href="route('announcements.index')" :active="route().current('announcements.*')" :collapsed="collapsed">
                 <template #icon>
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 1 1 0-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38a.75.75 0 0 1-.999-.272 17.957 17.957 0 0 1-1.41-2.992M10.34 15.84a21.174 21.174 0 0 0 0-7.68m0 7.68a22.39 22.39 0 0 1-1.453 4.235M10.34 8.16c.388-.948.852-1.856 1.381-2.717a.75.75 0 0 1 .999-.272l.657.38c.524.3.71.96.463 1.511-.273.617-.508 1.254-.705 1.905M14.084 8.16c.688.06 1.386.09 2.09.09h.75a4.5 4.5 0 0 1 0 9h-.75c-.704 0-1.402.03-2.09.09" /></svg>
                 </template>

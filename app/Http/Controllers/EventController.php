@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\EventType;
 use App\Models\Event;
+use App\Models\Game;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -33,7 +34,33 @@ class EventController extends Controller
                 'team_id' => $e->team_id,
                 'team_name' => $e->team->name,
                 'sport_type' => $e->team->section->sport_type,
+                'source' => 'event',
             ]);
+
+        // Competition games
+        $competitionGames = Game::where(fn ($q) => $q->where('home_club_id', $club->id)->orWhere('away_club_id', $club->id))
+            ->whereIn('status', ['scheduled', 'ongoing'])
+            ->with(['homeClub', 'awayClub', 'phase.competition'])
+            ->orderBy('scheduled_at')
+            ->get()
+            ->map(fn ($g) => [
+                'id' => 'game-' . $g->id,
+                'game_id' => $g->id,
+                'title' => ($g->homeClub->name ?? '?') . ' vs ' . ($g->awayClub->name ?? '?'),
+                'type' => 'competition',
+                'type_label' => 'Compétition',
+                'custom_type' => null,
+                'location' => $g->location,
+                'description' => $g->phase?->competition?->name . ' — ' . $g->phase?->name,
+                'start_at' => $g->scheduled_at->toIso8601String(),
+                'end_at' => null,
+                'team_id' => null,
+                'team_name' => $g->phase?->competition?->name,
+                'sport_type' => $g->phase?->competition?->sport_type,
+                'source' => 'competition',
+            ]);
+
+        $events = $events->concat($competitionGames)->sortBy('start_at')->values();
 
         $sections = $club->sections()
             ->with('teams:id,section_id,name')
