@@ -26,6 +26,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_dashboard',
             'respond_convocation',
             'view_own_profile',
+            'manage_competitions',
+            'manage_organizer',
+            'score_games',
         ];
 
         foreach ($permissions as $permission) {
@@ -55,6 +58,18 @@ class RolesAndPermissionsSeeder extends Seeder
         Role::firstOrCreate(['name' => RoleEnum::Membre->value])->syncPermissions([
             'respond_convocation',
             'view_own_profile',
+            'view_dashboard',
+        ]);
+
+        Role::firstOrCreate(['name' => 'organizer_admin'])->syncPermissions([
+            'manage_organizer',
+            'manage_competitions',
+            'score_games',
+            'view_dashboard',
+        ]);
+
+        Role::firstOrCreate(['name' => 'organizer_staff'])->syncPermissions([
+            'score_games',
             'view_dashboard',
         ]);
     }
