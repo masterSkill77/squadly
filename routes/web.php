@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\ClubCompetitionController;
 use App\Http\Controllers\ClubController;
+use App\Http\Controllers\CompetitionClubController;
+use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CoachAttendanceController;
@@ -15,7 +18,12 @@ use App\Http\Controllers\CoachTeamController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GameController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\OrganizerDashboardController;
+use App\Http\Controllers\PhaseController;
+use App\Http\Controllers\PublicCompetitionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SectionController;
 use App\Http\Controllers\TeamController;
@@ -34,6 +42,7 @@ Route::get('/dashboard', DashboardController::class)
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/search', SearchController::class)->name('search');
     Route::get('/onboarding', [OnboardingController::class, 'index'])->name('onboarding');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
     Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
@@ -108,6 +117,47 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Organizer routes
+Route::middleware(['auth', 'role:organizer_admin|organizer_staff'])
+    ->prefix('organizer')
+    ->name('organizer.')
+    ->group(function () {
+        Route::get('/dashboard', [OrganizerDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/setup', [OrganizerDashboardController::class, 'store'])->name('setup');
+        Route::resource('competitions', CompetitionController::class);
+        Route::get('/competitions/{competition}/phases', [PhaseController::class, 'index'])->name('competitions.phases.index');
+        Route::post('/competitions/{competition}/phases', [PhaseController::class, 'store'])->name('competitions.phases.store');
+        Route::put('/competitions/{competition}/phases/{phase}', [PhaseController::class, 'update'])->name('competitions.phases.update');
+        Route::delete('/competitions/{competition}/phases/{phase}', [PhaseController::class, 'destroy'])->name('competitions.phases.destroy');
+        Route::post('/competitions/{competition}/phases/{phase}/generate-schedule', [PhaseController::class, 'generateSchedule'])->name('competitions.phases.generate-schedule');
+        Route::get('/competitions/{competition}/draw', [CompetitionController::class, 'draw'])->name('competitions.draw');
+        Route::post('/competitions/{competition}/draw', [CompetitionController::class, 'performDraw'])->name('competitions.perform-draw');
+        Route::post('/competitions/{competition}/auto-generate', [CompetitionController::class, 'autoGenerate'])->name('competitions.auto-generate');
+        Route::get('/competitions/{competition}/clubs', [CompetitionClubController::class, 'index'])->name('competitions.clubs.index');
+        Route::post('/competitions/{competition}/clubs', [CompetitionClubController::class, 'store'])->name('competitions.clubs.store');
+        Route::post('/competitions/{competition}/clubs/approve-all', [CompetitionClubController::class, 'approveAll'])->name('competitions.clubs.approve-all');
+        Route::put('/competitions/{competition}/clubs/{competition_club}', [CompetitionClubController::class, 'update'])->name('competitions.clubs.update');
+        Route::delete('/competitions/{competition}/clubs/{competition_club}', [CompetitionClubController::class, 'destroy'])->name('competitions.clubs.destroy');
+        Route::get('/competitions/{competition}/matches', [GameController::class, 'index'])->name('competitions.matches.index');
+        Route::post('/competitions/{competition}/matches', [GameController::class, 'store'])->name('competitions.matches.store');
+        Route::get('/matches/{game}/score', [GameController::class, 'score'])->name('matches.score');
+        Route::patch('/matches/{game}/score', [GameController::class, 'updateScore'])->name('matches.update-score');
+        Route::put('/matches/{game}', [GameController::class, 'update'])->name('matches.update');
+        Route::delete('/matches/{game}', [GameController::class, 'destroy'])->name('matches.destroy');
+    });
+
+// Public competition pages
+Route::get('/competitions', [PublicCompetitionController::class, 'index'])->name('competitions.index');
+Route::get('/competitions/{competition}', [PublicCompetitionController::class, 'show'])->name('competitions.show');
+Route::get('/competitions/{competition}/standings', [PublicCompetitionController::class, 'standings'])->name('competitions.standings');
+
+// Club competition pages
+Route::middleware('auth')->group(function () {
+    Route::get('/club/competitions', [ClubCompetitionController::class, 'index'])->name('club.competitions');
+    Route::get('/club/competitions/{competition}', [ClubCompetitionController::class, 'show'])->name('club.competitions.show');
+    Route::post('/competitions/{competition}/register', [CompetitionClubController::class, 'register'])->name('competitions.register');
 });
 
 require __DIR__.'/auth.php';

@@ -36,6 +36,7 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'account_type' => 'required|in:club,organizer',
         ]);
 
         $user = User::create([
@@ -44,11 +45,19 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $user->assignRole(Role::Admin->value);
+        if ($request->account_type === 'organizer') {
+            $user->assignRole('organizer_admin');
+        } else {
+            $user->assignRole(Role::Admin->value);
+        }
 
         event(new Registered($user));
 
         Auth::login($user);
+
+        if ($request->account_type === 'organizer') {
+            return redirect(route('organizer.dashboard', absolute: false));
+        }
 
         return redirect(route('onboarding', absolute: false));
     }

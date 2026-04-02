@@ -27,6 +27,10 @@ class DashboardController extends Controller
             return redirect()->route('onboarding');
         }
 
+        if (in_array($role, ['organizer_admin', 'organizer_staff'])) {
+            return redirect()->route('organizer.dashboard');
+        }
+
         $data = [
             'role' => $role,
             'permissions' => $user->getAllPermissions()->pluck('name'),
