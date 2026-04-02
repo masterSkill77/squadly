@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('organizers', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('logo_url')->nullable();
+            $table->string('sport_type');
+            $table->string('contact_email');
+            $table->string('city')->nullable();
+            $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('organizers');
+    }
+};

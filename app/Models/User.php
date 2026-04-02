@@ -62,4 +62,21 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Team::class, 'team_members')->withTimestamps();
     }
+
+    public function organizers(): BelongsToMany
+    {
+        return $this->belongsToMany(Organizer::class, 'organizer_users')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
+
+    public function resolveOrganizer(): ?Organizer
+    {
+        return $this->organizers()->first();
+    }
+
+    public function playerStats(): HasMany
+    {
+        return $this->hasMany(PlayerStat::class);
+    }
 }
