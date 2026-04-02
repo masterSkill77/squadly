@@ -16,6 +16,9 @@ const user = usePage().props.auth.user;
                 <img src="/squadly-logo-light.svg" alt="Squadly" class="h-10" />
             </div>
             <div class="flex items-center gap-3">
+                <Link :href="route('clubs.index')" class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition hover:text-emerald-700">
+                    Clubs
+                </Link>
                 <Link :href="route('competitions.index')" class="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition hover:text-emerald-700">
                     Compétitions
                 </Link>
