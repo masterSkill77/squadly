@@ -35,6 +35,7 @@ Squadly remplace les fichiers Excel, les groupes WhatsApp et les échanges d'ema
 - **Membres** — CRUD complet, rôles (président / coach / membre), profils sportifs dynamiques, assignation aux équipes
 - **Dashboard par rôle** — vues personnalisées admin, coach et membre
 - **Système d'invitation** — invitation de membres par email avec lien sécurisé
+- **Compétitions** — championnats, tournois, classements en temps réel, calendrier des matchs, stats joueurs
 
 ## Stack technique
 
@@ -102,4 +103,6 @@ resources/js/
 | `admin_club` | Président | Club entier |
 | `coach` | Coach | Ses équipes encadrées |
 | `membre` | Membre | Son profil + son planning |
+| `organizer_admin` | Organisateur | Son organisation & compétitions |
+| `organizer_staff` | Staff | Saisie des scores uniquement |
 

@@ -51,8 +51,10 @@ Cible : admins de club, coachs, joueurs/membres.
 | `admin_club` | Président | Club entier | N/A (c'est le propriétaire) |
 | `coach` | Coach | Ses équipes encadrées | Pas de profil sportif, carte "Équipes encadrées" (bleu) |
 | `membre` | Membre | Son profil + son planning | Profils sportifs dynamiques + carte "Équipes" (vert) |
+| `organizer_admin` | Organisateur | Son organisation & compétitions | N/A |
+| `organizer_staff` | Staff | Saisie scores | N/A |
 
-Permissions Spatie : `manage_club`, `manage_members`, `manage_teams`, `manage_sections`, `manage_events`, `manage_convocations`, `manage_attendance`, `manage_documents`, `manage_finances`, `view_dashboard`, `respond_convocation`, `view_own_profile`
+Permissions Spatie : `manage_club`, `manage_members`, `manage_teams`, `manage_sections`, `manage_events`, `manage_convocations`, `manage_attendance`, `manage_documents`, `manage_finances`, `view_dashboard`, `respond_convocation`, `view_own_profile`, `manage_competitions`, `manage_organizer`, `score_games`
 
 ---
 
@@ -65,13 +67,17 @@ Permissions Spatie : `manage_club`, `manage_members`, `manage_teams`, `manage_se
 - `MemberProfile` — user_id, club_id, first_name, last_name, birth_date, phone, photo (Spatie Media)
 - `MemberSectionProfile` — user_id, section_id, sport_profile (JSON dynamique)
 - `TeamMember` — pivot user_id ↔ team_id
-
-## Modèles à venir
-
 - `Event` — team_id, type (training/match/other), titre, lieu, dates
 - `Convocation` — event_id, user_id, status (pending/confirmed/declined)
 - `Attendance` — event_id, user_id, status (present/absent/justified)
 - `Document` — user_id, club_id, type, media, saison, expires_at, status
+- `Organizer` — name, sport_type, contact_email, city, created_by
+- `Competition` — organizer_id, name, sport_type, season, format, status, rules (JSON)
+- `Phase` — competition_id, name, type, order, status
+- `CompetitionClub` — competition_id, club_id, phase_id, status
+- `Game` — phase_id, home_club_id, away_club_id, scheduled_at, scores, status
+- `PlayerStat` — game_id, user_id, goals, assists, cards, extra (JSON)
+- `Standing` — phase_id, club_id, played, won, drawn, lost, points
 
 ---
 
@@ -80,10 +86,14 @@ Permissions Spatie : `manage_club`, `manage_members`, `manage_teams`, `manage_se
 1. ✅ **Auth + onboarding guidé** — Breeze, création de club en 4 étapes, tour guidé
 2. ✅ **Organisation** — CRUD Club, Sections (ajout sport), Teams (ajout/edit/delete)
 3. ✅ **Membres** — CRUD complet, rôle coach/membre, profils sport dynamiques, assignation équipes
-4. ⬜ **Planning & convocations** — événements, convocations, réponses joueurs
-5. ⬜ **Présences** — feuille d'appel, taux de présence, historique
+4. ✅ **Planning & convocations** — événements, convocations, réponses joueurs
+5. ✅ **Présences** — feuille d'appel, taux de présence, historique
 6. ✅ **Dashboard par rôle** — vues admin / coach / membre, sidebar verticale collapsible
-7. ⬜ **Communication & documents** — annonces, upload fichiers, alertes docs
+7. ✅ **Communication & documents** — annonces, upload fichiers, alertes docs
+
+## Module V2
+
+8. ✅ **Compétitions** — organisateur, championnats, phases, matchs, classements, stats, pages publiques
 
 ---
 
@@ -97,10 +107,16 @@ Permissions Spatie : `manage_club`, `manage_members`, `manage_teams`, `manage_se
 - `/club` — Gestion du club (sections, équipes, ajout sport)
 - `/members` — Liste des membres avec recherche
 - `/members/{id}` — Fiche membre (coach: équipes encadrées / membre: profils sportifs)
+- `/organizer/dashboard` — Tableau de bord organisateur
+- `/organizer/competitions` — Gestion des compétitions (CRUD, phases, clubs, matchs)
+- `/competitions/{id}` — Page publique compétition (classement + matchs)
+- `/club/competitions` — Compétitions du club
 
 ## Services
 
 - `SportTemplateService` — templates sport centralisés (football, basketball, handball, natation, rugby, volleyball)
+- `StandingService` — calcul automatique des classements
+- `CompetitionService` — génération de calendrier round-robin
 
 ---
 
