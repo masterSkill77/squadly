@@ -16,6 +16,8 @@ import FooterSection from '@/Components/Landing/FooterSection.vue';
 const props = defineProps({
     canLogin: Boolean,
     canRegister: Boolean,
+    clubs: Array,
+    stats: Object,
 });
 
 const sports = [
@@ -49,12 +51,12 @@ const steps = [
     <Head title="Accueil" />
     <div class="min-h-screen bg-white">
         <Navbar :can-login="canLogin" :can-register="canRegister" />
-        <HeroSection :can-register="canRegister" :sports="sports" />
+        <HeroSection :can-register="canRegister" :sports="sports" :stats="stats" />
         <SportsBanner :sports="sports" />
         <FeaturesSection :features="features" />
         <ProfilePreview />
         <StepsSection :steps="steps" />
-        <ShowcaseSection />
+        <ShowcaseSection :clubs="clubs" />
         <GallerySection />
         <RolesSection />
         <TestimonialsSection />

@@ -1,62 +1,82 @@
 <script setup>
-const squads = [
-    {
-        name: 'Fosa Juniors FC — Seniors',
-        sport: 'Football',
-        members: 22,
-        gradient: 'from-emerald-400 to-teal-600',
-        image: 'https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=600&h=400&fit=crop',
-    },
-    {
-        name: 'Fikambanan\'ny Basket Tana — U17',
-        sport: 'Basketball',
-        members: 14,
-        gradient: 'from-orange-400 to-red-500',
-        image: 'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&h=400&fit=crop',
-    },
-    {
-        name: 'CN Mahajanga — Compétition',
-        sport: 'Natation',
-        members: 18,
-        gradient: 'from-blue-400 to-indigo-600',
-        image: 'https://images.unsplash.com/photo-1519315901367-f34ff9154487?w=600&h=400&fit=crop',
-    },
-    {
-        name: 'Akon\'i Toamasina HB — Féminines',
-        sport: 'Handball',
-        members: 16,
-        gradient: 'from-pink-400 to-rose-600',
-        image: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&h=400&fit=crop',
-    },
+import { Link } from '@inertiajs/vue3';
+
+const props = defineProps({
+    clubs: { type: Array, default: () => [] },
+});
+
+const sportEmojis = {
+    football: '⚽', basketball: '🏀', handball: '🤾',
+    natation: '🏊', rugby: '🏉', volleyball: '🏐',
+};
+
+const gradients = [
+    'from-emerald-400 to-teal-600',
+    'from-orange-400 to-red-500',
+    'from-blue-400 to-indigo-600',
+    'from-pink-400 to-rose-600',
+    'from-purple-400 to-violet-600',
+    'from-amber-400 to-orange-600',
+    'from-cyan-400 to-blue-600',
+    'from-lime-400 to-green-600',
 ];
 
-function onImgError(e) {
-    e.target.style.display = 'none';
-    e.target.nextElementSibling.style.display = 'flex';
-}
+// Fallback data if no clubs from DB
+const fallbackClubs = [
+    { name: 'Fosa Juniors FC', city: 'Mahajanga', sports: ['football'], members_count: 22, teams: [{ name: 'Seniors', sport: 'football', members_count: 22 }] },
+    { name: 'Basket Club Tana', city: 'Antananarivo', sports: ['basketball'], members_count: 14, teams: [{ name: 'U17', sport: 'basketball', members_count: 14 }] },
+    { name: 'CN Mahajanga', city: 'Mahajanga', sports: ['natation'], members_count: 18, teams: [{ name: 'Compétition', sport: 'natation', members_count: 18 }] },
+    { name: 'HB Toamasina', city: 'Toamasina', sports: ['handball'], members_count: 16, teams: [{ name: 'Féminines', sport: 'handball', members_count: 16 }] },
+];
+
+const displayClubs = props.clubs?.length ? props.clubs : fallbackClubs;
 </script>
 
 <template>
     <section class="py-24">
         <div class="mx-auto max-w-6xl px-6">
             <div class="text-center">
-                <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">Des équipes de tous les sports</h2>
-                <p class="mt-4 text-lg text-gray-500">Squadly s'adapte à chaque discipline et chaque catégorie.</p>
+                <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">Ils utilisent déjà Squadly</h2>
+                <p class="mt-4 text-lg text-gray-500">Des clubs de tous les sports nous font confiance.</p>
             </div>
             <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <div v-for="squad in squads" :key="squad.name" class="group overflow-hidden rounded-2xl border border-gray-100 bg-white transition hover:shadow-lg">
-                    <div class="relative h-40">
-                        <img :src="squad.image" :alt="squad.name" class="h-full w-full object-cover" loading="lazy" @error="onImgError" />
-                        <div :class="`bg-gradient-to-br ${squad.gradient}`" class="hidden h-full items-center justify-center"></div>
-                    </div>
-                    <div class="p-5">
-                        <h3 class="text-sm font-semibold text-gray-900">{{ squad.name }}</h3>
-                        <div class="mt-2 flex items-center justify-between">
-                            <span class="text-xs text-gray-500">{{ squad.sport }}</span>
-                            <span class="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">{{ squad.members }} membres</span>
+                <Link
+                    v-for="(club, i) in displayClubs.slice(0, 8)"
+                    :key="club.name"
+                    :href="club.slug ? `/clubs/${club.slug}` : '#'"
+                    class="group overflow-hidden rounded-2xl border border-gray-100 bg-white transition hover:shadow-lg"
+                >
+                    <!-- Header gradient with initials -->
+                    <div
+                        class="relative flex h-32 items-center justify-center bg-gradient-to-br"
+                        :class="gradients[i % gradients.length]"
+                    >
+                        <div v-if="club.logo_url" class="absolute inset-0">
+                            <img :src="club.logo_url" :alt="club.name" class="h-full w-full object-cover opacity-30" />
+                        </div>
+                        <span class="relative text-4xl font-extrabold text-white/90">
+                            {{ club.name.substring(0, 2).toUpperCase() }}
+                        </span>
+                        <!-- Sport badges -->
+                        <div class="absolute bottom-2 right-2 flex gap-1">
+                            <span
+                                v-for="sport in club.sports?.slice(0, 3)"
+                                :key="sport"
+                                class="rounded-full bg-white/20 px-1.5 py-0.5 text-xs backdrop-blur-sm"
+                            >
+                                {{ sportEmojis[sport] || '🏅' }}
+                            </span>
                         </div>
                     </div>
-                </div>
+                    <div class="p-4">
+                        <h3 class="text-sm font-semibold text-gray-900 group-hover:text-emerald-700">{{ club.name }}</h3>
+                        <p v-if="club.city" class="mt-0.5 text-xs text-gray-500">{{ club.city }}</p>
+                        <div class="mt-3 flex items-center gap-3 text-xs text-gray-400">
+                            <span>{{ club.members_count || 0 }} membres</span>
+                            <span>{{ club.teams?.length || 0 }} équipes</span>
+                        </div>
+                    </div>
+                </Link>
             </div>
         </div>
     </section>

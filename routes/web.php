@@ -23,6 +23,7 @@ use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\OrganizerDashboardController;
 use App\Http\Controllers\PhaseController;
+use App\Http\Controllers\PublicClubController;
 use App\Http\Controllers\PublicCompetitionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SectionController;
@@ -31,9 +32,38 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
+    $clubs = \App\Models\Club::with(['sections.teams' => fn ($q) => $q->withCount('members'), 'sections'])
+        ->withCount('memberProfiles')
+        ->latest()
+        ->limit(8)
+        ->get()
+        ->map(fn ($c) => [
+            'id' => $c->id,
+            'name' => $c->name,
+            'slug' => $c->slug,
+            'city' => $c->city,
+            'logo_url' => $c->getFirstMediaUrl('logo') ?: null,
+            'members_count' => $c->member_profiles_count,
+            'sports' => $c->sections->pluck('sport_type')->unique()->values(),
+            'teams' => $c->sections->flatMap->teams->map(fn ($t) => [
+                'name' => $t->name,
+                'sport' => $t->section->sport_type,
+                'members_count' => $t->members_count,
+            ])->values(),
+        ]);
+
+    $stats = [
+        'clubs' => \App\Models\Club::count(),
+        'members' => \App\Models\MemberProfile::count(),
+        'teams' => \App\Models\Team::count(),
+        'competitions' => \App\Models\Competition::count(),
+    ];
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
+        'clubs' => $clubs,
+        'stats' => $stats,
     ]);
 });
 
@@ -147,6 +177,10 @@ Route::middleware(['auth', 'role:organizer_admin|organizer_staff'])
         Route::put('/matches/{game}', [GameController::class, 'update'])->name('matches.update');
         Route::delete('/matches/{game}', [GameController::class, 'destroy'])->name('matches.destroy');
     });
+
+// Public club pages
+Route::get('/clubs', [PublicClubController::class, 'index'])->name('clubs.index');
+Route::get('/clubs/{club:slug}', [PublicClubController::class, 'show'])->name('clubs.show');
 
 // Public competition pages
 Route::get('/competitions', [PublicCompetitionController::class, 'index'])->name('competitions.index');

@@ -5,6 +5,7 @@ import HeroImages from './HeroImages.vue';
 defineProps({
     canRegister: Boolean,
     sports: Array,
+    stats: Object,
 });
 </script>
 
@@ -34,6 +35,29 @@ defineProps({
                         </a>
                     </div>
                     <p class="mt-4 text-sm text-gray-400">Gratuit pour les clubs de moins de 50 membres</p>
+
+                    <!-- Live stats -->
+                    <div v-if="stats && (stats.clubs > 0)" class="mt-8 flex items-center gap-6 lg:justify-start justify-center">
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-gray-900">{{ stats.clubs }}</p>
+                            <p class="text-xs text-gray-500">Clubs</p>
+                        </div>
+                        <div class="h-8 w-px bg-gray-200" />
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-gray-900">{{ stats.members }}</p>
+                            <p class="text-xs text-gray-500">Membres</p>
+                        </div>
+                        <div class="h-8 w-px bg-gray-200" />
+                        <div class="text-center">
+                            <p class="text-2xl font-bold text-gray-900">{{ stats.teams }}</p>
+                            <p class="text-xs text-gray-500">Équipes</p>
+                        </div>
+                        <div v-if="stats.competitions > 0" class="h-8 w-px bg-gray-200" />
+                        <div v-if="stats.competitions > 0" class="text-center">
+                            <p class="text-2xl font-bold text-gray-900">{{ stats.competitions }}</p>
+                            <p class="text-xs text-gray-500">Compétitions</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Images -->
