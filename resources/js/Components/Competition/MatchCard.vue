@@ -29,6 +29,8 @@ const formattedTime = computed(() => {
 });
 
 const isFinished = computed(() => props.game.status === 'finished');
+const homeLost = computed(() => isFinished.value && props.game.home_score < props.game.away_score);
+const awayLost = computed(() => isFinished.value && props.game.away_score < props.game.home_score);
 </script>
 
 <template>
@@ -50,15 +52,15 @@ const isFinished = computed(() => props.game.status === 'finished');
         <div class="mt-4 flex items-center justify-between gap-3">
             <!-- Home -->
             <div class="flex-1 text-right">
-                <p class="text-sm font-semibold text-gray-900">{{ game.home_club?.name ?? game.homeClub?.name ?? game.homeClub }}</p>
+                <p class="text-sm font-semibold" :class="homeLost ? 'text-gray-300' : 'text-gray-900'">{{ game.home_club?.name ?? game.homeClub?.name ?? game.homeClub }}</p>
             </div>
 
             <!-- Score -->
             <div class="flex items-center gap-2">
                 <template v-if="isFinished">
-                    <span class="rounded-lg bg-gray-900 px-3 py-1.5 text-lg font-bold text-white">{{ game.home_score }}</span>
+                    <span class="rounded-lg px-3 py-1.5 text-lg font-bold text-white" :class="homeLost ? 'bg-gray-300' : 'bg-gray-900'">{{ game.home_score }}</span>
                     <span class="text-xs font-medium text-gray-400">-</span>
-                    <span class="rounded-lg bg-gray-900 px-3 py-1.5 text-lg font-bold text-white">{{ game.away_score }}</span>
+                    <span class="rounded-lg px-3 py-1.5 text-lg font-bold text-white" :class="awayLost ? 'bg-gray-300' : 'bg-gray-900'">{{ game.away_score }}</span>
                 </template>
                 <template v-else>
                     <span class="text-sm font-medium text-gray-400">vs</span>
@@ -67,7 +69,7 @@ const isFinished = computed(() => props.game.status === 'finished');
 
             <!-- Away -->
             <div class="flex-1 text-left">
-                <p class="text-sm font-semibold text-gray-900">{{ game.away_club?.name ?? game.awayClub?.name ?? game.awayClub }}</p>
+                <p class="text-sm font-semibold" :class="awayLost ? 'text-gray-300' : 'text-gray-900'">{{ game.away_club?.name ?? game.awayClub?.name ?? game.awayClub }}</p>
             </div>
         </div>
 
