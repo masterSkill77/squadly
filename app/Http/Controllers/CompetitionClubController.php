@@ -94,6 +94,52 @@ class CompetitionClubController extends Controller
     }
 
     /**
+     * Bulk assign selected clubs to a phase.
+     */
+    public function bulkAssignPhase(Request $request, Competition $competition): RedirectResponse
+    {
+        $organizer = $request->user()->resolveOrganizer();
+        abort_unless($organizer && $competition->organizer_id === $organizer->id, 403);
+
+        $validated = $request->validate([
+            'club_ids' => 'required|array|min:1',
+            'club_ids.*' => 'integer',
+            'phase_id' => 'required|exists:phases,id',
+        ]);
+
+        CompetitionClub::where('competition_id', $competition->id)
+            ->whereIn('id', $validated['club_ids'])
+            ->update(['phase_id' => $validated['phase_id']]);
+
+        return back()->with('success', count($validated['club_ids']) . ' club(s) assigné(s).');
+    }
+
+    /**
+     * DEV/TEST: Register all existing clubs to a competition.
+     */
+    public function registerAll(Request $request, Competition $competition): RedirectResponse
+    {
+        $organizer = $request->user()->resolveOrganizer();
+        abort_unless($organizer && $competition->organizer_id === $organizer->id, 403);
+
+        $existingClubIds = $competition->competitionClubs()->pluck('club_id');
+
+        $clubs = Club::whereNotIn('id', $existingClubIds)->get();
+
+        foreach ($clubs as $club) {
+            CompetitionClub::create([
+                'competition_id' => $competition->id,
+                'club_id' => $club->id,
+                'status' => 'approved',
+                'registered_at' => now(),
+                'approved_at' => now(),
+            ]);
+        }
+
+        return back()->with('success', $clubs->count() . ' club(s) ajouté(s) à la compétition.');
+    }
+
+    /**
      * Club-side: register own club to a competition.
      */
     public function register(Request $request, Competition $competition): RedirectResponse

@@ -36,7 +36,7 @@ const phases = computed(() => props.competition.phases ?? []);
                 <template v-if="phases.length">
                     <div v-for="phase in phases" :key="phase.id">
                         <h3 class="mb-3 text-base font-semibold text-gray-900">{{ phase.name }}</h3>
-                        <StandingsTable :standings="phase.standings ?? []" />
+                        <StandingsTable :standings="phase.standings ?? []" :qualify-count="phase.qualify_count ?? 0" />
                     </div>
                 </template>
                 <div v-else class="rounded-xl border border-dashed border-gray-300 p-10 text-center">

@@ -25,7 +25,9 @@ const sportLabels = {
 const formatLabels = {
     league: 'Championnat',
     cup: 'Coupe',
-    tournament: 'Tournoi',
+    group_knockout: 'Poules + Élimination',
+    league_playoffs: 'Championnat + Playoffs',
+    custom: 'Personnalisé',
 };
 
 const confirmDelete = (competition) => {

@@ -23,6 +23,7 @@ const formats = [
     { value: 'league', label: 'Championnat' },
     { value: 'cup', label: 'Coupe' },
     { value: 'group_knockout', label: 'Poules + Élimination' },
+    { value: 'league_playoffs', label: 'Championnat + Playoffs' },
     { value: 'custom', label: 'Personnalisé' },
 ];
 

@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Enums\CompetitionClubStatus;
 use App\Enums\GameStatus;
+use App\Models\CompetitionClub;
 use App\Models\Game;
 use App\Models\Phase;
 use App\Models\Standing;
@@ -62,6 +64,20 @@ class StandingService
             }
         }
 
+        // Include clubs that have no games yet (all zeros)
+        $allClubIds = CompetitionClub::where('phase_id', $phaseId)
+            ->where('status', CompetitionClubStatus::Approved)
+            ->pluck('club_id');
+
+        foreach ($allClubIds as $clubId) {
+            if (!isset($stats[$clubId])) {
+                $stats[$clubId] = [
+                    'played' => 0, 'won' => 0, 'drawn' => 0, 'lost' => 0,
+                    'goals_for' => 0, 'goals_against' => 0, 'points' => 0,
+                ];
+            }
+        }
+
         // Delete old standings for this phase, then bulk insert
         Standing::where('phase_id', $phaseId)->delete();
 
@@ -72,5 +88,13 @@ class StandingService
                 ...$data,
             ]);
         }
+    }
+
+    /**
+     * Initialize standings for all clubs in a phase (all zeros).
+     */
+    public static function initialize(int $phaseId): void
+    {
+        self::recalculate($phaseId);
     }
 }
