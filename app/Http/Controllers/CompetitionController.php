@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CompetitionClubStatus;
+use App\Enums\PhaseType;
+use App\Jobs\GenerateScheduleJob;
 use App\Models\Competition;
 use App\Services\CompetitionService;
+use App\Services\QualificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -47,18 +50,27 @@ class CompetitionController extends Controller
             'name' => 'required|string|max:255',
             'sport_type' => 'required|string|max:100',
             'season' => 'required|string|max:20',
-            'format' => 'required|in:league,cup,group_knockout,custom',
+            'format' => 'required|in:league,cup,group_knockout,league_playoffs,custom',
             'description' => 'nullable|string',
             'rules' => 'nullable|array',
             'starts_at' => 'required|date',
             'ends_at' => 'required|date|after:starts_at',
+            'config' => 'nullable|array',
             'phases' => 'nullable|array',
             'phases.*.name' => 'required|string|max:255',
             'phases.*.type' => 'required|in:group,knockout,round_robin,single',
+            'phases.*.qualify_count' => 'nullable|integer|min:1|max:32',
         ]);
 
         $competition = $organizer->competitions()->create([
-            ...$validated,
+            'name' => $validated['name'],
+            'sport_type' => $validated['sport_type'],
+            'season' => $validated['season'],
+            'format' => $validated['format'],
+            'description' => $validated['description'] ?? null,
+            'rules' => $validated['rules'] ?? ['points_win' => 3, 'points_draw' => 1, 'points_loss' => 0],
+            'starts_at' => $validated['starts_at'],
+            'ends_at' => $validated['ends_at'],
             'status' => 'draft',
         ]);
 
@@ -68,6 +80,7 @@ class CompetitionController extends Controller
                     'name' => $phase['name'],
                     'type' => $phase['type'],
                     'order' => $i + 1,
+                    'qualify_count' => $phase['qualify_count'] ?? 2,
                 ]);
             }
         }
@@ -92,8 +105,19 @@ class CompetitionController extends Controller
             'games',
         ]);
 
+        // Load bracket data if a knockout phase exists
+        $knockoutPhase = $competition->phases
+            ->where('type', PhaseType::Knockout)
+            ->sortByDesc(fn ($p) => $p->games()->count())
+            ->first();
+        $bracket = $knockoutPhase
+            ? QualificationService::getBracketData($knockoutPhase)
+            : ['rounds' => [], 'totalRounds' => 0];
+
         return Inertia::render('Organizer/Competitions/Show', [
             'competition' => $competition,
+            'bracket' => $bracket,
+            'knockoutPhase' => $knockoutPhase,
         ]);
     }
 
@@ -116,7 +140,7 @@ class CompetitionController extends Controller
             'name' => 'required|string|max:255',
             'sport_type' => 'required|string|max:100',
             'season' => 'required|string|max:20',
-            'format' => 'required|in:league,cup,group_knockout,custom',
+            'format' => 'required|in:league,cup,group_knockout,league_playoffs,custom',
             'status' => 'required|in:draft,open,ongoing,finished',
             'description' => 'nullable|string',
             'rules' => 'nullable|array',
@@ -172,10 +196,10 @@ class CompetitionController extends Controller
         abort_unless($organizer && $competition->organizer_id === $organizer->id, 403);
 
         foreach ($competition->phases as $phase) {
-            CompetitionService::autoGenerate($phase);
+            GenerateScheduleJob::dispatch($phase->id);
         }
 
         return redirect()->route('organizer.competitions.show', $competition)
-            ->with('success', 'Matchs générés automatiquement !');
+            ->with('success', 'Génération des calendriers en cours…');
     }
 }

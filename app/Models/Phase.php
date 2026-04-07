@@ -13,7 +13,10 @@ class Phase extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['competition_id', 'name', 'type', 'order', 'status'];
+    protected $fillable = [
+        'competition_id', 'name', 'type', 'order', 'status',
+        'qualify_count', 'source_phase_id',
+    ];
 
     protected function casts(): array
     {
@@ -26,6 +29,11 @@ class Phase extends Model
     public function competition(): BelongsTo
     {
         return $this->belongsTo(Competition::class);
+    }
+
+    public function sourcePhase(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'source_phase_id');
     }
 
     public function games(): HasMany

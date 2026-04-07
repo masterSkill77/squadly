@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PhaseType;
 use App\Models\Competition;
 use App\Models\Game;
-use App\Models\Phase;
 use App\Models\PlayerStat;
+use App\Services\QualificationService;
+use App\Services\StandingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -79,6 +81,16 @@ class GameController extends Controller
             'player_stats.*.minutes_played' => 'nullable|integer|min:0',
         ]);
 
+        // Block draws in knockout phases
+        $phase = $game->phase;
+        if ($phase->type === PhaseType::Knockout && $game->round !== null) {
+            if ($validated['home_score'] === $validated['away_score']) {
+                return back()->withErrors([
+                    'home_score' => 'Un match à élimination directe ne peut pas se terminer par un nul.',
+                ]);
+            }
+        }
+
         $game->update([
             'home_score' => $validated['home_score'],
             'away_score' => $validated['away_score'],
@@ -92,6 +104,16 @@ class GameController extends Controller
                     $stat
                 );
             }
+        }
+
+        // Recalculate standings for group/round_robin phases
+        if (in_array($phase->type, [PhaseType::Group, PhaseType::RoundRobin])) {
+            StandingService::recalculate($phase->id);
+        }
+
+        // Advance winner in knockout bracket
+        if ($phase->type === PhaseType::Knockout && $game->round !== null) {
+            QualificationService::advanceWinner($game);
         }
 
         return back()->with('success', 'Score enregistré.');
@@ -121,5 +143,46 @@ class GameController extends Controller
         $game->delete();
 
         return back()->with('success', 'Match supprimé.');
+    }
+
+    /**
+     * DEV/TEST: Generate random scores for all scheduled games.
+     */
+    public function simulateScores(Request $request, Competition $competition): RedirectResponse
+    {
+        $organizer = $request->user()->resolveOrganizer();
+        abort_unless($organizer && $competition->organizer_id === $organizer->id, 403);
+
+        \App\Jobs\SimulateScoresJob::dispatch($competition->id);
+
+        return back()->with('success', 'Simulation des scores en cours…');
+    }
+
+    public function bracket(Request $request, Competition $competition): Response
+    {
+        $organizer = $request->user()->resolveOrganizer();
+        abort_unless($organizer && $competition->organizer_id === $organizer->id, 403);
+
+        $knockoutPhase = $competition->phases()
+            ->where('type', PhaseType::Knockout)
+            ->whereNotNull('source_phase_id')
+            ->first();
+
+        // Also check for standalone knockout phases
+        if (! $knockoutPhase) {
+            $knockoutPhase = $competition->phases()
+                ->where('type', PhaseType::Knockout)
+                ->first();
+        }
+
+        $bracket = $knockoutPhase
+            ? QualificationService::getBracketData($knockoutPhase)
+            : ['rounds' => [], 'totalRounds' => 0];
+
+        return Inertia::render('Organizer/Competitions/Bracket', [
+            'competition' => $competition->load('organizer'),
+            'bracket' => $bracket,
+            'phase' => $knockoutPhase,
+        ]);
     }
 }

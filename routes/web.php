@@ -168,14 +168,18 @@ Route::middleware(['auth', 'role:organizer_admin|organizer_staff'])
         Route::get('/competitions/{competition}/clubs', [CompetitionClubController::class, 'index'])->name('competitions.clubs.index');
         Route::post('/competitions/{competition}/clubs', [CompetitionClubController::class, 'store'])->name('competitions.clubs.store');
         Route::post('/competitions/{competition}/clubs/approve-all', [CompetitionClubController::class, 'approveAll'])->name('competitions.clubs.approve-all');
+        Route::post('/competitions/{competition}/clubs/register-all', [CompetitionClubController::class, 'registerAll'])->name('competitions.clubs.register-all');
+        Route::post('/competitions/{competition}/clubs/bulk-assign', [CompetitionClubController::class, 'bulkAssignPhase'])->name('competitions.clubs.bulk-assign');
         Route::put('/competitions/{competition}/clubs/{competition_club}', [CompetitionClubController::class, 'update'])->name('competitions.clubs.update');
         Route::delete('/competitions/{competition}/clubs/{competition_club}', [CompetitionClubController::class, 'destroy'])->name('competitions.clubs.destroy');
+        Route::get('/competitions/{competition}/bracket', [GameController::class, 'bracket'])->name('competitions.bracket');
         Route::get('/competitions/{competition}/matches', [GameController::class, 'index'])->name('competitions.matches.index');
         Route::post('/competitions/{competition}/matches', [GameController::class, 'store'])->name('competitions.matches.store');
         Route::get('/matches/{game}/score', [GameController::class, 'score'])->name('matches.score');
         Route::patch('/matches/{game}/score', [GameController::class, 'updateScore'])->name('matches.update-score');
         Route::put('/matches/{game}', [GameController::class, 'update'])->name('matches.update');
         Route::delete('/matches/{game}', [GameController::class, 'destroy'])->name('matches.destroy');
+        Route::post('/competitions/{competition}/simulate-scores', [GameController::class, 'simulateScores'])->name('competitions.simulate-scores');
     });
 
 // Public club pages
@@ -186,6 +190,7 @@ Route::get('/clubs/{club:slug}', [PublicClubController::class, 'show'])->name('c
 Route::get('/competitions', [PublicCompetitionController::class, 'index'])->name('competitions.index');
 Route::get('/competitions/{competition}', [PublicCompetitionController::class, 'show'])->name('competitions.show');
 Route::get('/competitions/{competition}/standings', [PublicCompetitionController::class, 'standings'])->name('competitions.standings');
+Route::get('/competitions/{competition}/bracket', [PublicCompetitionController::class, 'bracket'])->name('competitions.bracket');
 
 // Club competition pages
 Route::middleware('auth')->group(function () {

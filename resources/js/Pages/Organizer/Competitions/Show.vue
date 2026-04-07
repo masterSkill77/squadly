@@ -1,24 +1,35 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import CompetitionBadge from '@/Components/Competition/CompetitionBadge.vue';
 import StandingsTable from '@/Components/Competition/StandingsTable.vue';
 import MatchCard from '@/Components/Competition/MatchCard.vue';
+import BracketTree from '@/Components/Competition/BracketTree.vue';
 
 const props = defineProps({
     competition: Object,
+    bracket: Object,
+    knockoutPhase: Object,
 });
 
 const activeTab = ref('info');
 
-const tabs = [
-    { key: 'info', label: 'Informations' },
-    { key: 'phases', label: 'Phases' },
-    { key: 'clubs', label: 'Clubs inscrits' },
-    { key: 'matches', label: 'Derniers matchs' },
-    { key: 'standings', label: 'Classement' },
-];
+const hasBracket = computed(() => props.bracket?.rounds?.length > 0);
+
+const tabs = computed(() => {
+    const base = [
+        { key: 'info', label: 'Informations' },
+        { key: 'phases', label: 'Phases' },
+        { key: 'clubs', label: 'Clubs inscrits' },
+        { key: 'matches', label: 'Derniers matchs' },
+        { key: 'standings', label: 'Classement' },
+    ];
+    if (hasBracket.value) {
+        base.push({ key: 'bracket', label: 'Tableau' });
+    }
+    return base;
+});
 
 const sportLabels = {
     football: 'Football',
@@ -32,7 +43,9 @@ const sportLabels = {
 const formatLabels = {
     league: 'Championnat',
     cup: 'Coupe',
-    tournament: 'Tournoi',
+    group_knockout: 'Poules + Élimination',
+    league_playoffs: 'Championnat + Playoffs',
+    custom: 'Personnalisé',
 };
 
 const phaseTypeLabels = {
@@ -271,7 +284,7 @@ const formatDate = (date) => {
                 <template v-if="competition.phases?.some(p => p.standings?.length)">
                     <div v-for="phase in competition.phases" :key="phase.id">
                         <h3 v-if="competition.phases.length > 1" class="mb-3 text-sm font-semibold text-gray-900">{{ phase.name }}</h3>
-                        <StandingsTable v-if="phase.standings?.length" :standings="phase.standings" />
+                        <StandingsTable v-if="phase.standings?.length" :standings="phase.standings" :qualify-count="phase.qualify_count ?? 0" />
                     </div>
                 </template>
                 <div v-else class="rounded-xl border border-dashed border-gray-300 p-8 text-center">
@@ -279,9 +292,31 @@ const formatDate = (date) => {
                 </div>
             </div>
 
+            <!-- Tab: Bracket -->
+            <div v-if="hasBracket" v-show="activeTab === 'bracket'" class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-900">Tableau du tournoi</h3>
+                    <Link
+                        :href="route('organizer.competitions.bracket', competition.id)"
+                        class="text-sm font-medium text-emerald-600 hover:text-emerald-700"
+                    >
+                        Voir en plein écran
+                    </Link>
+                </div>
+
+                <div class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                    <BracketTree
+                        :rounds="bracket.rounds"
+                        :total-rounds="bracket.totalRounds"
+                    />
+                </div>
+            </div>
+
             <!-- Action links -->
-            <div class="flex items-center gap-3 border-t border-gray-100 pt-6">
+            <div class="flex flex-wrap items-center gap-3 border-t border-gray-100 pt-6">
+                <!-- Modifier : toujours sauf si terminée -->
                 <Link
+                    v-if="competition.status !== 'finished'"
                     :href="route('organizer.competitions.edit', competition.id)"
                     class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                 >
@@ -290,25 +325,45 @@ const formatDate = (date) => {
                     </svg>
                     Modifier
                 </Link>
+
+                <!-- Gérer les phases : tant que pas terminée -->
                 <Link
+                    v-if="competition.status !== 'finished'"
                     :href="route('organizer.competitions.phases.index', competition.id)"
                     class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                 >
-                    Gerer les phases
+                    Gérer les phases
                 </Link>
+
+                <!-- Tirage au sort : quand il y a des clubs approuvés mais pas tous assignés -->
                 <Link
-                    v-if="!competition.phases?.some(p => (p.competition_clubs ?? []).length > 0)"
+                    v-if="competition.status !== 'finished' && competition.competition_clubs?.some(c => c.status === 'approved' && !c.phase_id)"
                     :href="route('organizer.competitions.draw', competition.id)"
                     class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
                 >
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 0 0-3.7-3.7 48.678 48.678 0 0 0-7.324 0 4.006 4.006 0 0 0-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 0 0 3.7 3.7 48.656 48.656 0 0 0 7.324 0 4.006 4.006 0 0 0 3.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3-3 3" /></svg>
                     Tirage au sort
                 </Link>
+
+                <!-- Gérer les matchs : quand il y a des matchs -->
                 <Link
+                    v-if="competition.phases?.some(p => p.games?.length)"
                     :href="route('organizer.competitions.matches.index', competition.id)"
                     class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                 >
                     Gérer les matchs
+                </Link>
+
+                <!-- Voir le tableau : quand un bracket existe -->
+                <Link
+                    v-if="hasBracket"
+                    :href="route('organizer.competitions.bracket', competition.id)"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
+                >
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6Z" />
+                    </svg>
+                    Voir le tableau
                 </Link>
             </div>
         </div>
