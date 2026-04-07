@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Enums\CompetitionClubStatus;
 use App\Enums\CompetitionStatus;
 use App\Enums\GameStatus;
+use App\Enums\PhaseType;
 use App\Enums\Role;
 use App\Models\Competition;
+use App\Services\QualificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -115,10 +117,21 @@ class ClubCompetitionController extends Controller
             ->orderBy('scheduled_at')
             ->get();
 
+        // Bracket data for knockout phase (prefer the one with a generated bracket)
+        $knockoutPhase = $competition->phases
+            ->where('type', PhaseType::Knockout)
+            ->sortByDesc(fn ($p) => $p->games()->count())
+            ->first();
+        $bracket = $knockoutPhase
+            ? QualificationService::getBracketData($knockoutPhase)
+            : ['rounds' => [], 'totalRounds' => 0];
+
         return Inertia::render('Club/CompetitionShow', [
             'competition' => $competition,
             'club' => $club,
             'myGames' => $myGames,
+            'bracket' => $bracket,
+            'knockoutPhase' => $knockoutPhase,
         ]);
     }
 }

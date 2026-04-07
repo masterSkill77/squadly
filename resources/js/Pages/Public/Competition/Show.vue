@@ -1,13 +1,16 @@
 <script setup>
 import { ref, computed } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import Navbar from '@/Components/Landing/Navbar.vue';
 import StandingsTable from '@/Components/Competition/StandingsTable.vue';
 import MatchCard from '@/Components/Competition/MatchCard.vue';
 import CompetitionBadge from '@/Components/Competition/CompetitionBadge.vue';
+import BracketTree from '@/Components/Competition/BracketTree.vue';
 
 const props = defineProps({
     competition: Object,
+    bracket: Object,
+    knockoutPhase: Object,
     canLogin: Boolean,
     canRegister: Boolean,
 });
@@ -15,6 +18,8 @@ const props = defineProps({
 const activeTab = ref('classement');
 
 const phases = computed(() => props.competition.phases ?? []);
+
+const hasBracket = computed(() => props.bracket?.rounds?.length > 0);
 
 const allGames = computed(() =>
     phases.value.flatMap((phase) => (phase.games ?? []).map((g) => ({ ...g, phaseName: phase.name }))),
@@ -88,18 +93,17 @@ const gamesByDate = computed(() => {
             <div class="mt-6 border-b border-gray-200">
                 <nav class="-mb-px flex gap-6">
                     <button
+                        v-for="tab in [
+                            { key: 'classement', label: 'Classement' },
+                            { key: 'matchs', label: 'Matchs' },
+                            ...(hasBracket ? [{ key: 'tableau', label: 'Tableau' }] : []),
+                        ]"
+                        :key="tab.key"
                         class="whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition"
-                        :class="activeTab === 'classement' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
-                        @click="activeTab = 'classement'"
+                        :class="activeTab === tab.key ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
+                        @click="activeTab = tab.key"
                     >
-                        Classement
-                    </button>
-                    <button
-                        class="whitespace-nowrap border-b-2 px-1 pb-3 text-sm font-medium transition"
-                        :class="activeTab === 'matchs' ? 'border-emerald-600 text-emerald-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'"
-                        @click="activeTab = 'matchs'"
-                    >
-                        Matchs
+                        {{ tab.label }}
                     </button>
                 </nav>
             </div>
@@ -109,7 +113,7 @@ const gamesByDate = computed(() => {
                 <template v-if="phases.length">
                     <div v-for="phase in phases" :key="phase.id">
                         <h3 class="mb-3 text-base font-semibold text-gray-900">{{ phase.name }}</h3>
-                        <StandingsTable :standings="phase.standings ?? []" />
+                        <StandingsTable :standings="phase.standings ?? []" :qualify-count="phase.qualify_count ?? 0" />
                     </div>
                 </template>
                 <div v-else class="rounded-xl border border-dashed border-gray-300 p-10 text-center">
@@ -128,7 +132,28 @@ const gamesByDate = computed(() => {
                     </div>
                 </template>
                 <div v-else class="rounded-xl border border-dashed border-gray-300 p-10 text-center">
-                    <p class="text-sm text-gray-400">Aucun match programme pour cette competition.</p>
+                    <p class="text-sm text-gray-400">Aucun match programmé pour cette compétition.</p>
+                </div>
+            </div>
+
+            <!-- Tab content: Tableau -->
+            <div v-if="activeTab === 'tableau'" class="mt-6 space-y-4">
+                <div v-if="knockoutPhase" class="flex items-center gap-3 rounded-xl bg-white px-5 py-3 shadow-sm">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50">
+                        <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-4.5A3.375 3.375 0 0 0 13.125 10.875h-2.25A3.375 3.375 0 0 0 7.5 14.25v4.5" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900">{{ knockoutPhase.name }}</p>
+                        <p class="text-xs text-gray-500">
+                            {{ bracket.totalRounds }} tour(s) &middot;
+                            {{ bracket.rounds.reduce((sum, r) => sum + r.games.length, 0) }} match(s)
+                        </p>
+                    </div>
+                </div>
+                <div class="rounded-xl bg-white p-6 shadow-sm">
+                    <BracketTree :rounds="bracket.rounds" :total-rounds="bracket.totalRounds" />
                 </div>
             </div>
         </div>

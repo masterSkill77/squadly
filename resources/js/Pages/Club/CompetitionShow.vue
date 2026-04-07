@@ -5,16 +5,20 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import StandingsTable from '@/Components/Competition/StandingsTable.vue';
 import MatchCard from '@/Components/Competition/MatchCard.vue';
 import CompetitionBadge from '@/Components/Competition/CompetitionBadge.vue';
+import BracketTree from '@/Components/Competition/BracketTree.vue';
 
 const props = defineProps({
     competition: Object,
     club: Object,
     myGames: Array,
+    bracket: Object,
+    knockoutPhase: Object,
 });
 
 const activeTab = ref('classement');
 
 const phases = computed(() => props.competition.phases ?? []);
+const hasBracket = computed(() => props.bracket?.rounds?.length > 0);
 
 const formatDate = (date) => {
     if (!date) return '—';
@@ -76,6 +80,7 @@ const formatDate = (date) => {
                             { key: 'classement', label: 'Classement' },
                             { key: 'matchs', label: 'Nos matchs' },
                             { key: 'calendrier', label: 'Tous les matchs' },
+                            ...(hasBracket ? [{ key: 'tableau', label: 'Tableau' }] : []),
                         ]"
                         :key="tab.key"
                         class="relative border-b-2 pb-3 text-sm font-medium transition"
@@ -92,7 +97,7 @@ const formatDate = (date) => {
                 <template v-if="phases.some(p => p.standings?.length)">
                     <div v-for="phase in phases" :key="phase.id">
                         <h3 v-if="phases.length > 1" class="mb-3 text-sm font-semibold text-gray-900">{{ phase.name }}</h3>
-                        <StandingsTable v-if="phase.standings?.length" :standings="phase.standings" />
+                        <StandingsTable v-if="phase.standings?.length" :standings="phase.standings" :qualify-count="phase.qualify_count ?? 0" />
                     </div>
                 </template>
                 <div v-else class="rounded-xl border border-dashed border-gray-300 p-10 text-center">
@@ -122,6 +127,27 @@ const formatDate = (date) => {
                 </template>
                 <div v-else class="rounded-xl border border-dashed border-gray-300 p-10 text-center">
                     <p class="text-sm text-gray-400">Aucun match programmé.</p>
+                </div>
+            </div>
+
+            <!-- Tab: Tableau -->
+            <div v-show="activeTab === 'tableau'" class="space-y-4">
+                <div v-if="knockoutPhase" class="flex items-center gap-3 rounded-xl border border-gray-100 bg-white px-5 py-3 shadow-sm">
+                    <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50">
+                        <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-4.5A3.375 3.375 0 0 0 13.125 10.875h-2.25A3.375 3.375 0 0 0 7.5 14.25v4.5" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-gray-900">{{ knockoutPhase.name }}</p>
+                        <p class="text-xs text-gray-500">
+                            {{ bracket.totalRounds }} tour(s) &middot;
+                            {{ bracket.rounds.reduce((sum, r) => sum + r.games.length, 0) }} match(s)
+                        </p>
+                    </div>
+                </div>
+                <div class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+                    <BracketTree :rounds="bracket.rounds" :total-rounds="bracket.totalRounds" />
                 </div>
             </div>
         </div>
