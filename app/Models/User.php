@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,12 +15,34 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'has_completed_onboarding'])]
+#[Fillable(['name', 'email', 'phone', 'password', 'has_completed_onboarding'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable;
+
+    public static function normalizePhone(?string $phone): ?string
+    {
+        if (! $phone) {
+            return null;
+        }
+
+        $phone = preg_replace('/[\s.\-]/', '', $phone);
+
+        if (str_starts_with($phone, '03')) {
+            $phone = '+261' . substr($phone, 1);
+        }
+
+        return $phone;
+    }
+
+    protected function phone(): Attribute
+    {
+        return Attribute::make(
+            set: fn (?string $value) => self::normalizePhone($value),
+        );
+    }
 
     protected function casts(): array
     {

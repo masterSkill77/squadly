@@ -19,6 +19,7 @@ const user = usePage().props.auth.user;
 const form = useForm({
     name: user.name,
     email: user.email,
+    phone: user.phone ?? '',
 });
 </script>
 
@@ -30,7 +31,7 @@ const form = useForm({
             </h2>
 
             <p class="mt-1 text-sm text-gray-600">
-                Mettez à jour les informations de votre compte et votre adresse email.
+                Mettez à jour les informations de votre compte, votre adresse email et votre téléphone.
             </p>
         </header>
 
@@ -67,6 +68,21 @@ const form = useForm({
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
+            </div>
+
+            <div>
+                <InputLabel for="phone" value="Téléphone" />
+
+                <TextInput
+                    id="phone"
+                    type="tel"
+                    class="mt-1 block w-full"
+                    v-model="form.phone"
+                    autocomplete="tel"
+                    placeholder="034 12 345 67"
+                />
+
+                <InputError class="mt-2" :message="form.errors.phone" />
             </div>
 
             <div v-if="mustVerifyEmail && user.email_verified_at === null">

@@ -9,6 +9,15 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        if ($this->phone) {
+            $this->merge([
+                'phone' => User::normalizePhone($this->phone),
+            ]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -24,6 +33,12 @@ class ProfileUpdateRequest extends FormRequest
                 'lowercase',
                 'email',
                 'max:255',
+                Rule::unique(User::class)->ignore($this->user()->id),
+            ],
+            'phone' => [
+                'nullable',
+                'string',
+                'regex:/^\+261\d{9}$/',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
         ];

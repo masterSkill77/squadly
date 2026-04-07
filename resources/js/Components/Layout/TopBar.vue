@@ -104,19 +104,21 @@ function showHelp() {
 </script>
 
 <template>
-    <header class="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-gray-100 bg-white px-6">
-        <slot name="left" />
+    <header class="sticky top-0 z-20 flex h-16 items-center border-b border-gray-100 bg-white px-6">
+        <div class="min-w-0 flex-1">
+            <slot name="left" />
+        </div>
 
-        <!-- Search -->
-        <div class="mx-4 hidden max-w-xl flex-1 sm:block">
-            <div class="relative">
+        <div class="flex shrink-0 items-center gap-3">
+            <!-- Search -->
+            <div class="relative hidden sm:block">
                 <svg class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
                 <input
                     ref="inputRef"
                     v-model="query"
                     type="text"
-                    placeholder="Rechercher un membre, une équipe…"
-                    class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-12 text-sm text-gray-700 placeholder-gray-400 transition focus:border-emerald-500 focus:bg-white focus:ring-emerald-500"
+                    placeholder="Rechercher…"
+                    class="w-56 rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-12 text-sm text-gray-700 placeholder-gray-400 transition focus:w-80 focus:border-emerald-500 focus:bg-white focus:ring-emerald-500"
                     @keydown="onKeydown"
                     @focus="query.length >= 2 && (isOpen = true)"
                     @blur="close"
@@ -138,7 +140,7 @@ function showHelp() {
                 >
                     <div
                         v-if="isOpen && (results.length || query.length >= 2)"
-                        class="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+                        class="absolute right-0 top-full z-50 mt-1 w-96 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
                     >
                         <div v-if="results.length" class="max-h-80 overflow-y-auto py-1">
                             <button
@@ -170,9 +172,8 @@ function showHelp() {
                     </div>
                 </Transition>
             </div>
-        </div>
 
-        <div class="flex items-center gap-1">
+            <div class="flex items-center gap-1">
             <!-- Compétitions -->
             <Link
                 :href="isOrganizer ? route('organizer.competitions.index') : route('club.competitions')"
@@ -188,6 +189,7 @@ function showHelp() {
             <button class="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600" title="Aide" @click="showHelp">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>
             </button>
+            </div>
         </div>
     </header>
 </template>
