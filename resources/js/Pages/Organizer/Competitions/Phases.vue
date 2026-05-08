@@ -140,7 +140,7 @@ const hasKnockoutPhase = () => {
 </script>
 
 <template>
-    <Head :title="`Phases — ${competition.name}`" />
+    <Head title="Phases" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -156,7 +156,6 @@ const hasKnockoutPhase = () => {
                     </Link>
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900">Phases</h2>
-                        <p class="text-xs text-gray-500">{{ competition.name }}</p>
                     </div>
                 </div>
 

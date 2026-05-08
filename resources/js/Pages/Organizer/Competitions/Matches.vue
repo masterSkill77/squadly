@@ -103,7 +103,7 @@ const awayLost = (game) => game.status === 'finished' && game.away_score < game.
 </script>
 
 <template>
-    <Head :title="`Matchs — ${competition.name}`" />
+    <Head title="Matchs" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -118,7 +118,6 @@ const awayLost = (game) => game.status === 'finished' && game.away_score < game.
                 </Link>
                 <div>
                     <h2 class="text-lg font-semibold text-gray-900">Matchs</h2>
-                    <p class="text-xs text-gray-500">{{ competition.name }}</p>
                 </div>
             </div>
         </template>

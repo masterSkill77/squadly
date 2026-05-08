@@ -93,7 +93,6 @@ const formatDate = (date) => {
                 </Link>
                 <div>
                     <h2 class="text-lg font-semibold text-gray-900">{{ competition.name }}</h2>
-                    <p class="text-xs text-gray-500">{{ sportLabels[competition.sport_type] || competition.sport_type }} &mdash; {{ competition.season }}</p>
                 </div>
                 <CompetitionBadge :status="competition.status" />
             </div>

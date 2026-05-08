@@ -109,7 +109,7 @@ function confirmAndGenerate() {
 </script>
 
 <template>
-    <Head :title="`Tirage au sort — ${competition.name}`" />
+    <Head title="Tirage au sort" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -124,7 +124,6 @@ function confirmAndGenerate() {
                 </Link>
                 <div>
                     <h2 class="text-lg font-semibold text-gray-900">Tirage au sort</h2>
-                    <p class="text-xs text-gray-500">{{ competition.name }}</p>
                 </div>
             </div>
         </template>

@@ -97,7 +97,7 @@ const registerAll = () => {
 </script>
 
 <template>
-    <Head :title="`Clubs — ${competition.name}`" />
+    <Head title="Clubs inscrits" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -112,7 +112,6 @@ const registerAll = () => {
                 </Link>
                 <div>
                     <h2 class="text-lg font-semibold text-gray-900">Clubs inscrits</h2>
-                    <p class="text-xs text-gray-500">{{ competition.name }}</p>
                 </div>
             </div>
         </template>

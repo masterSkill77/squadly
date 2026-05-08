@@ -11,7 +11,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <Head :title="`Tableau — ${competition.name}`" />
+    <Head title="Tableau du tournoi" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -26,7 +26,6 @@ const props = defineProps({
                 </Link>
                 <div>
                     <h2 class="text-lg font-semibold text-gray-900">Tableau du tournoi</h2>
-                    <p class="text-xs text-gray-500">{{ competition.name }}</p>
                 </div>
             </div>
         </template>

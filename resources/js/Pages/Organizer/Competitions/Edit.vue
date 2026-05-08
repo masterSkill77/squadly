@@ -49,7 +49,7 @@ function submit() {
 </script>
 
 <template>
-    <Head :title="`Modifier — ${competition.name}`" />
+    <Head title="Modifier la compétition" />
 
     <AuthenticatedLayout>
         <template #header>
@@ -64,7 +64,6 @@ function submit() {
                 </Link>
                 <div>
                     <h2 class="text-lg font-semibold text-gray-900">Modifier la compétition</h2>
-                    <p class="text-xs text-gray-500">{{ competition.name }}</p>
                 </div>
             </div>
         </template>
