@@ -75,6 +75,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/search', SearchController::class)->name('search');
     Route::get('/onboarding', [OnboardingController::class, 'index'])->name('onboarding');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
+    Route::post('/onboarding/organizer', [OnboardingController::class, 'storeOrganizer'])->name('onboarding.organizer.store');
     Route::post('/onboarding/complete', [OnboardingController::class, 'complete'])->name('onboarding.complete');
     Route::get('/club', [ClubController::class, 'show'])->name('club.show');
     Route::post('/club', [ClubController::class, 'update'])->name('club.update');

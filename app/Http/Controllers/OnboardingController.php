@@ -13,13 +13,48 @@ class OnboardingController extends Controller
 {
     public function index(Request $request): Response|RedirectResponse
     {
-        if ($request->user()->hasClub()) {
+        $user = $request->user();
+
+        if ($user->hasRole('organizer_admin')) {
+            if ($user->resolveOrganizer()) {
+                return redirect()->route('organizer.dashboard');
+            }
+            return Inertia::render('Onboarding/Organizer', [
+                'sportTemplates' => SportTemplateService::keys(),
+            ]);
+        }
+
+        if ($user->hasClub()) {
             return redirect()->route('dashboard');
         }
 
         return Inertia::render('Onboarding/Index', [
             'sportTemplates' => SportTemplateService::keys(),
         ]);
+    }
+
+    public function storeOrganizer(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'sport_type' => 'required|string|in:' . implode(',', SportTemplateService::keys()),
+            'contact_email' => 'required|email|max:255',
+            'city' => 'nullable|string|max:255',
+        ]);
+
+        $organizer = \App\Models\Organizer::create([
+            'name' => $request->name,
+            'sport_type' => $request->sport_type,
+            'contact_email' => $request->contact_email,
+            'city' => $request->city,
+            'created_by' => $request->user()->id,
+        ]);
+
+        $organizer->users()->attach($request->user(), ['role' => 'admin']);
+
+        $request->user()->update(['has_completed_onboarding' => true]);
+
+        return redirect()->route('organizer.dashboard');
     }
 
     public function store(Request $request): RedirectResponse
