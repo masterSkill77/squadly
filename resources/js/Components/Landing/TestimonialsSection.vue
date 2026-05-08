@@ -2,7 +2,7 @@
 const testimonials = [
     {
         name: 'Hery Rasolofoniaina',
-        role: 'Président — Fosa Juniors FC, Mahajanga',
+        role: 'Président — FC Ambohima',
         text: 'Avant Squadly, on gérait tout par SMS et tableurs Excel. Maintenant, les convocations partent en un clic et les joueurs répondent directement.',
         initials: 'HR',
         color: 'bg-emerald-500',
