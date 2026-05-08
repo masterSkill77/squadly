@@ -78,7 +78,7 @@ onBeforeUnmount(() => window.removeEventListener('squadly:show-help', onShowHelp
         <WelcomeModal
             :show="showWelcome"
             :role="role"
-            :club-name="page.props.auth.club?.name || 'votre club'"
+            :club-name="page.props.auth.club?.name || page.props.auth.organizer?.name || 'votre espace'"
             @close="showWelcome = false"
         />
     </div>

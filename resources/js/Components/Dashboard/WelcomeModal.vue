@@ -16,7 +16,7 @@ const steps = props.role === Role.OrganizerAdmin || props.role === Role.Organize
     ? [
         {
             title: 'Bienvenue sur Squadly !',
-            description: 'Votre organisation est prête. Squadly vous aide à gérer vos compétitions de A à Z.',
+            description: `${props.clubName} est prête. Squadly vous aide à gérer vos compétitions de A à Z.`,
             icon: '🏆',
         },
         {

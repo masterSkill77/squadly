@@ -43,6 +43,10 @@ class HandleInertiaRequests extends Middleware
                         'logo_url' => $club->getFirstMediaUrl('logo'),
                     ] : null;
                 })() : null,
+                'organizer' => fn () => $request->user() ? (function () use ($request) {
+                    $organizer = $request->user()->resolveOrganizer();
+                    return $organizer ? ['name' => $organizer->name] : null;
+                })() : null,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
