@@ -71,7 +71,7 @@ Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/search', SearchController::class)->name('search');
     Route::get('/onboarding', [OnboardingController::class, 'index'])->name('onboarding');
     Route::post('/onboarding', [OnboardingController::class, 'store'])->name('onboarding.store');
@@ -150,7 +150,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Organizer routes
-Route::middleware(['auth', 'role:organizer_admin|organizer_staff'])
+Route::middleware(['auth', 'verified', 'role:organizer_admin|organizer_staff'])
     ->prefix('organizer')
     ->name('organizer.')
     ->group(function () {
@@ -193,7 +193,7 @@ Route::get('/competitions/{competition}/standings', [PublicCompetitionController
 Route::get('/competitions/{competition}/bracket', [PublicCompetitionController::class, 'bracket'])->name('competitions.bracket');
 
 // Club competition pages
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/club/competitions', [ClubCompetitionController::class, 'index'])->name('club.competitions');
     Route::get('/club/competitions/{competition}', [ClubCompetitionController::class, 'show'])->name('club.competitions.show');
     Route::post('/competitions/{competition}/register', [CompetitionClubController::class, 'register'])->name('competitions.register');
