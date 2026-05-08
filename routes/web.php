@@ -35,7 +35,7 @@ Route::get('/', function () {
     $clubs = \App\Models\Club::with(['sections.teams' => fn ($q) => $q->withCount('members'), 'sections'])
         ->withCount('memberProfiles')
         ->latest()
-        ->limit(8)
+        ->limit(5)
         ->get()
         ->map(fn ($c) => [
             'id' => $c->id,

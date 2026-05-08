@@ -41,7 +41,7 @@ const displayClubs = props.clubs?.length ? props.clubs : fallbackClubs;
             </div>
             <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <Link
-                    v-for="(club, i) in displayClubs.slice(0, 8)"
+                    v-for="(club, i) in displayClubs.slice(0, 5)"
                     :key="club.name"
                     :href="club.slug ? `/clubs/${club.slug}` : '#'"
                     class="group overflow-hidden rounded-2xl border border-gray-100 bg-white transition hover:shadow-lg"
