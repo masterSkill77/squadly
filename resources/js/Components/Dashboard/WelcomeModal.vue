@@ -12,7 +12,35 @@ const emit = defineEmits(['close']);
 
 const roleLabel = roleLabels[props.role] || props.role;
 
-const steps = props.role === Role.Coach
+const steps = props.role === Role.OrganizerAdmin || props.role === Role.OrganizerStaff
+    ? [
+        {
+            title: 'Bienvenue sur Squadly !',
+            description: 'Votre organisation est prête. Squadly vous aide à gérer vos compétitions de A à Z.',
+            icon: '🏆',
+        },
+        {
+            title: 'Créez vos compétitions',
+            description: 'Configurez un championnat ou une coupe : définissez les phases, le format et les règles de votre compétition.',
+            icon: '📋',
+        },
+        {
+            title: 'Gérez les clubs participants',
+            description: 'Invitez des clubs à s\'inscrire, approuvez les demandes et répartissez-les dans les phases.',
+            icon: '🏟️',
+        },
+        {
+            title: 'Générez le calendrier',
+            description: 'Laissez Squadly générer automatiquement les matchs (round-robin ou knockout) et planifiez les rencontres.',
+            icon: '📅',
+        },
+        {
+            title: 'Suivez les classements et résultats',
+            description: 'Saisissez les scores après chaque match — les classements et statistiques se mettent à jour en temps réel.',
+            icon: '📊',
+        },
+    ]
+    : props.role === Role.Coach
     ? [
         {
             title: 'Bienvenue, Coach !',
