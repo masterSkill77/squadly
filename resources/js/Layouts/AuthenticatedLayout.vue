@@ -66,7 +66,7 @@ onBeforeUnmount(() => window.removeEventListener('squadly:show-help', onShowHelp
                 </template>
             </TopBar>
 
-            <main class="p-6">
+            <main class="p-4 sm:p-6">
                 <slot />
             </main>
         </div>

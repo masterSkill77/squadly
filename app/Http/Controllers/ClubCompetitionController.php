@@ -8,6 +8,7 @@ use App\Enums\GameStatus;
 use App\Enums\PhaseType;
 use App\Enums\Role;
 use App\Models\Competition;
+use App\Models\CompetitionAnnouncement;
 use App\Services\QualificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -126,12 +127,33 @@ class ClubCompetitionController extends Controller
             ? QualificationService::getBracketData($knockoutPhase)
             : ['rounds' => [], 'totalRounds' => 0];
 
+        // Competition announcements (only if club is approved)
+        $isApproved = $competition->competitionClubs()
+            ->where('club_id', $club->id)
+            ->where('status', CompetitionClubStatus::Approved)
+            ->exists();
+
+        $announcements = $isApproved
+            ? CompetitionAnnouncement::where('competition_id', $competition->id)
+                ->with('author:id,name')
+                ->latest()
+                ->get()
+                ->map(fn ($a) => [
+                    'id' => $a->id,
+                    'title' => $a->title,
+                    'content' => $a->content,
+                    'author_name' => $a->author->name,
+                    'created_at' => $a->created_at->toIso8601String(),
+                ])
+            : collect();
+
         return Inertia::render('Club/CompetitionShow', [
             'competition' => $competition,
             'club' => $club,
             'myGames' => $myGames,
             'bracket' => $bracket,
             'knockoutPhase' => $knockoutPhase,
+            'announcements' => $announcements,
         ]);
     }
 }

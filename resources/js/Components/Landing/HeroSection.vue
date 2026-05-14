@@ -10,17 +10,17 @@ defineProps({
 </script>
 
 <template>
-    <section class="relative overflow-hidden pt-32 pb-28">
+    <section class="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-28">
         <div class="absolute inset-0 bg-gradient-to-br from-emerald-50 via-white to-teal-50"></div>
-        <div class="relative mx-auto max-w-6xl px-6">
-            <div class="grid items-center gap-12 lg:grid-cols-2">
+        <div class="relative mx-auto max-w-6xl px-4 sm:px-6">
+            <div class="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
                 <!-- Text -->
                 <div class="text-center lg:text-left">
                     <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-sm font-medium text-emerald-700">
                         <span v-for="sport in sports" :key="sport.name" v-html="sport.emoji"></span>
                         <span class="ml-1">Multi-sports</span>
                     </div>
-                    <h1 class="mt-6 text-5xl leading-tight font-extrabold tracking-tight text-gray-900 sm:text-6xl">
+                    <h1 class="mt-6 text-3xl leading-tight font-extrabold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
                         Gérez moins. <span class="text-emerald-600">Jouez plus.</span>
                     </h1>
                     <p class="mt-6 max-w-xl text-lg text-gray-600">
@@ -37,7 +37,7 @@ defineProps({
                     <p class="mt-4 text-sm text-gray-400">Gratuit pour les clubs de moins de 50 membres</p>
 
                     <!-- Live stats -->
-                    <div v-if="stats && (stats.clubs > 0)" class="mt-8 flex items-center gap-6 lg:justify-start justify-center">
+                    <div v-if="stats && (stats.clubs > 0)" class="mt-8 flex flex-wrap items-center gap-4 sm:gap-6 lg:justify-start justify-center">
                         <div class="text-center">
                             <p class="text-2xl font-bold text-gray-900">{{ stats.clubs }}</p>
                             <p class="text-xs text-gray-500">Clubs</p>

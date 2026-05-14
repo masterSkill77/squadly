@@ -91,7 +91,8 @@ const gamesByDate = computed(() => {
 
             <!-- Tabs -->
             <div class="mt-6 border-b border-gray-200">
-                <nav class="-mb-px flex gap-6">
+                <div class="overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+                <nav class="-mb-px flex min-w-max gap-6">
                     <button
                         v-for="tab in [
                             { key: 'classement', label: 'Classement' },
@@ -106,6 +107,7 @@ const gamesByDate = computed(() => {
                         {{ tab.label }}
                     </button>
                 </nav>
+                </div>
             </div>
 
             <!-- Tab content: Classement -->

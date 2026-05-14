@@ -25,14 +25,14 @@ const testimonials = [
 </script>
 
 <template>
-    <section class="bg-gray-50 py-24">
-        <div class="mx-auto max-w-6xl px-6">
+    <section class="bg-gray-50 py-12 sm:py-24">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
             <div class="text-center">
                 <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">Ils utilisent Squadly</h2>
                 <p class="mt-4 text-lg text-gray-500">Admins, coachs et joueurs — tous y trouvent leur compte.</p>
             </div>
-            <div class="mt-16 grid gap-8 sm:grid-cols-3">
-                <div v-for="t in testimonials" :key="t.name" class="rounded-2xl border border-gray-100 bg-white p-8">
+            <div class="mt-16 grid gap-4 sm:grid-cols-3 sm:gap-8">
+                <div v-for="t in testimonials" :key="t.name" class="rounded-2xl border border-gray-100 bg-white p-5 sm:p-8">
                     <p class="text-sm leading-relaxed text-gray-600 italic">"{{ t.text }}"</p>
                     <div class="mt-6 flex items-center gap-3">
                         <div :class="t.color" class="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white">

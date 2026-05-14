@@ -33,13 +33,13 @@ const displayClubs = props.clubs?.length ? props.clubs : fallbackClubs;
 </script>
 
 <template>
-    <section class="py-24">
-        <div class="mx-auto max-w-6xl px-6">
+    <section class="py-12 sm:py-24">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
             <div class="text-center">
                 <h2 class="text-3xl font-bold text-gray-900 sm:text-4xl">Ils utilisent déjà Squadly</h2>
                 <p class="mt-4 text-lg text-gray-500">Des clubs de tous les sports nous font confiance.</p>
             </div>
-            <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="mt-16 grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
                 <Link
                     v-for="(club, i) in displayClubs.slice(0, 5)"
                     :key="club.name"

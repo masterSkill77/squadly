@@ -13,16 +13,29 @@ const props = defineProps({
     myGames: Array,
     bracket: Object,
     knockoutPhase: Object,
+    announcements: Array,
 });
 
 const activeTab = ref('classement');
 
 const phases = computed(() => props.competition.phases ?? []);
 const hasBracket = computed(() => props.bracket?.rounds?.length > 0);
+const hasAnnouncements = computed(() => props.announcements && props.announcements.length > 0);
 
 const formatDate = (date) => {
     if (!date) return '—';
     return new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+};
+
+const formatDateTime = (iso) => {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
 };
 </script>
 
@@ -74,13 +87,15 @@ const formatDate = (date) => {
 
             <!-- Tabs -->
             <div class="border-b border-gray-200">
-                <nav class="flex gap-6">
+                <div class="overflow-x-auto scrollbar-hide -mx-6 px-6 sm:mx-0 sm:px-0">
+                <nav class="flex min-w-max gap-6">
                     <button
                         v-for="tab in [
                             { key: 'classement', label: 'Classement' },
                             { key: 'matchs', label: 'Nos matchs' },
                             { key: 'calendrier', label: 'Tous les matchs' },
                             ...(hasBracket ? [{ key: 'tableau', label: 'Tableau' }] : []),
+                            ...(announcements?.length ? [{ key: 'annonces', label: 'Annonces' }] : []),
                         ]"
                         :key="tab.key"
                         class="relative border-b-2 pb-3 text-sm font-medium transition"
@@ -90,6 +105,7 @@ const formatDate = (date) => {
                         {{ tab.label }}
                     </button>
                 </nav>
+                </div>
             </div>
 
             <!-- Tab: Classement -->
@@ -148,6 +164,26 @@ const formatDate = (date) => {
                 </div>
                 <div class="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
                     <BracketTree :rounds="bracket.rounds" :total-rounds="bracket.totalRounds" />
+                </div>
+            </div>
+
+            <!-- Tab: Annonces -->
+            <div v-show="activeTab === 'annonces'" class="space-y-4">
+                <div v-if="announcements?.length" class="space-y-4">
+                    <div
+                        v-for="announcement in announcements"
+                        :key="announcement.id"
+                        class="rounded-xl border border-gray-100 bg-white p-5 shadow-sm"
+                    >
+                        <h4 class="text-sm font-semibold text-gray-900">{{ announcement.title }}</h4>
+                        <p class="mt-0.5 text-xs text-gray-500">
+                            Par {{ announcement.author_name }} &middot; {{ formatDateTime(announcement.created_at) }}
+                        </p>
+                        <p class="mt-3 whitespace-pre-wrap text-sm text-gray-700">{{ announcement.content }}</p>
+                    </div>
+                </div>
+                <div v-else class="rounded-xl border border-dashed border-gray-300 p-10 text-center">
+                    <p class="text-sm text-gray-400">Aucune annonce pour cette compétition.</p>
                 </div>
             </div>
         </div>

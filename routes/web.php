@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClubCompetitionController;
 use App\Http\Controllers\ClubController;
+use App\Http\Controllers\CompetitionAnnouncementController;
 use App\Http\Controllers\CompetitionClubController;
 use App\Http\Controllers\CompetitionController;
 use App\Http\Controllers\AnnouncementController;
@@ -181,6 +182,9 @@ Route::middleware(['auth', 'verified', 'role:organizer_admin|organizer_staff'])
         Route::put('/matches/{game}', [GameController::class, 'update'])->name('matches.update');
         Route::delete('/matches/{game}', [GameController::class, 'destroy'])->name('matches.destroy');
         Route::post('/competitions/{competition}/simulate-scores', [GameController::class, 'simulateScores'])->name('competitions.simulate-scores');
+        Route::get('/competitions/{competition}/announcements', [CompetitionAnnouncementController::class, 'index'])->name('competitions.announcements.index');
+        Route::post('/competitions/{competition}/announcements', [CompetitionAnnouncementController::class, 'store'])->name('competitions.announcements.store');
+        Route::delete('/competitions/{competition}/announcements/{announcement}', [CompetitionAnnouncementController::class, 'destroy'])->name('competitions.announcements.destroy');
     });
 
 // Public club pages
